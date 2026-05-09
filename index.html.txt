@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Analitik Opsyen PPDBP</title>
+  
+  <!-- Memuat turun Tailwind CSS secara langsung -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  
+  <!-- Memuat turun React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Prop-types diperlukan oleh Recharts -->
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+
+  <!-- Memuat turun Babel (Penting untuk membolehkan pelayar membaca kod JSX) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Memuat turun carta Recharts (Versi Stabil) -->
+  <script src="https://unpkg.com/recharts@2.1.12/umd/Recharts.js"></script>
+  
+  <style>
+    /* Styling responsif khusus untuk iFrame Google Sites */
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+    #root { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #334155; }
+    
+    /* Melancarkan tatalan (scroll) jadual di skrin sentuh */
+    .table-scroll-container {
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+  </style>
+</head>
+<body class="antialiased text-slate-900 bg-slate-50 dark:bg-[#0B0F19] dark:text-slate-100">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect, useRef } = React;
+    
+    // --- PERLINDUNGAN RECHARTS ---
+    const Recharts = window.Recharts || {};
+    const BarChart = Recharts.BarChart || 'div';
+    const Bar = Recharts.Bar || 'div';
+    const XAxis = Recharts.XAxis || 'div';
+    const YAxis = Recharts.YAxis || 'div';
+    const CartesianGrid = Recharts.CartesianGrid || 'div';
+    const RechartsTooltip = Recharts.Tooltip || 'div';
+    const Legend = Recharts.Legend || 'div';
+    const ResponsiveContainer = Recharts.ResponsiveContainer || 'div';
+    const PieChart = Recharts.PieChart || 'div';
+    const Pie = Recharts.Pie || 'div';
+    const Cell = Recharts.Cell || 'div';
+
+    // --- KOLEKSI IKON INTERNAL (Bebas ralat Error #130) ---
+    const SVGPaths = {
+      LayoutDashboard: <React.Fragment><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></React.Fragment>,
+      Users: <React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>,
+      School: <React.Fragment><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></React.Fragment>,
+      BookOpen: <React.Fragment><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></React.Fragment>,
+      AlertTriangle: <React.Fragment><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></React.Fragment>,
+      BarChart2: <React.Fragment><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></React.Fragment>,
+      Download: <React.Fragment><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></React.Fragment>,
+      Search: <React.Fragment><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></React.Fragment>,
+      Moon: <React.Fragment><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></React.Fragment>,
+      Sun: <React.Fragment><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></React.Fragment>,
+      Menu: <React.Fragment><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></React.Fragment>,
+      X: <React.Fragment><path d="M18 6 6 18"/><path d="m6 6 12 12"/></React.Fragment>,
+      Filter: <React.Fragment><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></React.Fragment>,
+      MapIcon: <React.Fragment><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></React.Fragment>,
+      MapPin: <React.Fragment><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></React.Fragment>,
+      Briefcase: <React.Fragment><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></React.Fragment>,
+      ChevronRight: <React.Fragment><path d="m9 18 6-6-6-6"/></React.Fragment>,
+      AlertOctagon: <React.Fragment><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></React.Fragment>,
+      Sparkles: <React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/><path d="M19 17v4"/><path d="M17 19h4"/></React.Fragment>,
+      Home: <React.Fragment><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></React.Fragment>,
+      GraduationCap: <React.Fragment><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></React.Fragment>,
+      PieChartIcon: <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>
+    };
+
+    const CustomIcon = ({ name, className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className || 'w-5 h-5'}>
+        {SVGPaths[name]}
+      </svg>
+    );
+
+    const LayoutDashboard = (p) => <CustomIcon name="LayoutDashboard" {...p} />;
+    const Users = (p) => <CustomIcon name="Users" {...p} />;
+    const School = (p) => <CustomIcon name="School" {...p} />;
+    const BookOpen = (p) => <CustomIcon name="BookOpen" {...p} />;
+    const AlertTriangle = (p) => <CustomIcon name="AlertTriangle" {...p} />;
+    const BarChart2 = (p) => <CustomIcon name="BarChart2" {...p} />;
+    const Download = (p) => <CustomIcon name="Download" {...p} />;
+    const Search = (p) => <CustomIcon name="Search" {...p} />;
+    const Moon = (p) => <CustomIcon name="Moon" {...p} />;
+    const Sun = (p) => <CustomIcon name="Sun" {...p} />;
+    const Menu = (p) => <CustomIcon name="Menu" {...p} />;
+    const X = (p) => <CustomIcon name="X" {...p} />;
+    const Filter = (p) => <CustomIcon name="Filter" {...p} />;
+    const MapIcon = (p) => <CustomIcon name="MapIcon" {...p} />;
+    const MapPin = (p) => <CustomIcon name="MapPin" {...p} />;
+    const Briefcase = (p) => <CustomIcon name="Briefcase" {...p} />;
+    const ChevronRight = (p) => <CustomIcon name="ChevronRight" {...p} />;
+    const AlertOctagon = (p) => <CustomIcon name="AlertOctagon" {...p} />;
+    const Sparkles = (p) => <CustomIcon name="Sparkles" {...p} />;
+    const Home = (p) => <CustomIcon name="Home" {...p} />;
+    const GraduationCap = (p) => <CustomIcon name="GraduationCap" {...p} />;
+    const PieChartIcon = (p) => <CustomIcon name="PieChartIcon" {...p} />;
+
+    // --- DATA MOCKUP DEFAULT ---
+    const MOCK_DATA = [
+      { id: 1, bil: 1, zon: 'BANGSAR', kod_sekolah: 'WBA0001', nama_sekolah: 'SK BANGSAR', nama: 'AHMAD BIN ABU', ikhtisas: 'SMP', opsyen_1: 'MATEMATIK', opsyen_2: 'SAINS', opsyen_3: '', ikhtisas_conversion: '', conversion_pito: '', opsyen_dominan: 'MATEMATIK', subjek_ajar1: 'MATEMATIK', bil_waktu1: 12, subjek_ajar2: 'BAHASA MELAYU', bil_waktu2: 6, subjek_ajar3: '', bil_waktu3: 0, jawatan: 'GURU AKADEMIK BIASA', gred_penyandang: 'DG44', gred_hakiki: 'DG44', tarikh_khidmat_semasa: '2015-01-01' },
+    ];
+
+    const COLORS = ['#0ea5e9', '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#f43f5e', '#6366f1'];
+
+    // --- PARSER CSV ---
+    const parseCSV = (str) => {
+      const arr = [];
+      let quote = false;
+      let row = 0, col = 0;
+      for (let c = 0; c < str.length; c++) {
+        let cc = str[c], nc = str[c+1];
+        arr[row] = arr[row] || [];
+        arr[row][col] = arr[row][col] || '';
+
+        if (cc === '"' && quote && nc === '"') { arr[row][col] += cc; ++c; continue; }
+        if (cc === '"') { quote = !quote; continue; }
+        if (cc === ',' && !quote) { ++col; continue; }
+        if (cc === '\r' && nc === '\n' && !quote) { ++row; col = 0; ++c; continue; }
+        if (cc === '\n' && !quote) { ++row; col = 0; continue; }
+        if (cc === '\r' && !quote) { ++row; col = 0; continue; }
+        arr[row][col] += cc;
+      }
+      
+      if (arr.length < 2) return [];
+      const headers = arr[0].map(h => h.replace(/\n|\r/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase());
+      
+      const result = [];
+      for (let i = 1; i < arr.length; i++) {
+        if (!arr[i] || arr[i].join('').trim() === '') continue; 
+        const obj = {};
+        headers.forEach((h, j) => { obj[h] = arr[i][j] ? arr[i][j].trim() : ''; });
+        result.push(obj);
+      }
+      return result;
+    };
+
+    const getVal = (row, keys) => {
+      for (let k of keys) {
+        if (row[k] !== undefined && row[k] !== null) return row[k];
+      }
+      return '';
+    };
+
+    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+      const RADIAN = Math.PI / 180;
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+      if (percent < 0.04) return null;
+      return (
+        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold" style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.8)' }}>
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+      );
+    };
+
+    // --- KOMPONEN UI ---
+    const Card = ({ children, className = "" }) => (
+      <div className={`bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg dark:shadow-indigo-500/5 border border-slate-200/60 dark:border-indigo-500/10 transition-all duration-300 relative overflow-hidden group ${className}`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        {children}
+      </div>
+    );
+
+    const KPICard = ({ title, value, icon: IconBase, trend, colorClass }) => (
+      <Card className="p-5 md:p-6 flex items-center justify-between">
+        <div className="relative z-10">
+          <p className="text-xs md:text-sm font-semibold text-slate-500 dark:text-indigo-200/70 mb-1 uppercase tracking-wider">{title}</p>
+          <h3 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">{value}</h3>
+          {trend && <p className="text-[10px] md:text-xs text-indigo-500 dark:text-cyan-400 mt-2 font-medium flex items-center gap-1"><Sparkles className="w-3 h-3"/> {trend}</p>}
+        </div>
+        <div className={`p-3 md:p-4 rounded-2xl bg-gradient-to-br ${colorClass} text-white shadow-lg shadow-current/30 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10`}>
+          <IconBase className="w-6 h-6 md:w-8 md:h-8" />
+        </div>
+      </Card>
+    );
+
+    const TableViewHeader = ({ title, subtitle, searchQuery, setSearchQuery, onExport }) => (
+      <div className="p-4 md:p-5 border-b border-slate-100 dark:border-indigo-500/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 dark:bg-slate-900/50">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white tracking-tight">{title}</h2>
+          {subtitle && <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mt-1">{subtitle}</p>}
+        </div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text" placeholder="Carian pintar..." 
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm transition-shadow shadow-sm"
+              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <button onClick={onExport} className="flex justify-center items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white rounded-xl transition-all shadow-lg shadow-teal-500/20 text-sm font-semibold whitespace-nowrap">
+            <Download className="w-4 h-4" />
+            <span>Eksport CSV</span>
+          </button>
+        </div>
+      </div>
+    );
+
+    // --- KONTAINER TABEL DRAGGABLE ---
+    const DraggableTableContainer = ({ children }) => {
+      const containerRef = useRef(null);
+      const [isDown, setIsDown] = useState(false);
+      const [startX, setStartX] = useState(0);
+      const [scrollLeft, setScrollLeft] = useState(0);
+
+      const handleMouseDown = (e) => {
+        setIsDown(true);
+        setStartX(e.pageX - containerRef.current.offsetLeft);
+        setScrollLeft(containerRef.current.scrollLeft);
+        containerRef.current.style.cursor = 'grabbing';
+        containerRef.current.style.userSelect = 'none';
+      };
+
+      const handleMouseLeave = () => {
+        setIsDown(false);
+        if(containerRef.current) {
+            containerRef.current.style.cursor = 'grab';
+            containerRef.current.style.userSelect = 'auto';
+        }
+      };
+
+      const handleMouseUp = () => {
+        setIsDown(false);
+        if(containerRef.current) {
+            containerRef.current.style.cursor = 'grab';
+            containerRef.current.style.userSelect = 'auto';
+        }
+      };
+
+      const handleMouseMove = (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - containerRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; 
+        containerRef.current.scrollLeft = scrollLeft - walk;
+      };
+
+      return (
+        <div
+          ref={containerRef}
+          className="flex-1 p-0 scrollbar-thin table-scroll-container"
+          style={{ cursor: 'grab' }}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
+          {children}
+        </div>
+      );
+    };
+
+    // --- KOMPONEN UTAMA (APP) ---
+    function App() {
+      const [appMode, setAppMode] = useState('landing');
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [isDarkMode, setIsDarkMode] = useState(true); 
+      const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedZone, setSelectedZone] = useState('ALL');
+      const [selectedSchool, setSelectedSchool] = useState('ALL');
+
+      const [liveData, setLiveData] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+
+      const availableZones = useMemo(() => {
+        const zones = new Set(liveData.map(d => d.zon).filter(Boolean));
+        return Array.from(zones).sort();
+      }, [liveData]);
+
+      const availableSchools = useMemo(() => {
+        let filtered = liveData;
+        if (selectedZone !== 'ALL') {
+          filtered = filtered.filter(d => d.zon === selectedZone);
+        }
+        const schools = new Set(filtered.map(d => d.nama_sekolah).filter(Boolean));
+        return Array.from(schools).sort();
+      }, [liveData, selectedZone]);
+
+      useEffect(() => {
+        if (appMode === 'landing') return;
+
+        const fetchCSV = async () => {
+          try {
+            setIsLoading(true);
+            const gid = appMode === 'SM' ? '1852678103' : '1406432906';
+            const response = await fetch(`https://docs.google.com/spreadsheets/d/e/2PACX-1vQeeJ71FzcyQAbRArjF2znlPd55X8U3GFGnRfmJyBhcRXLGWsqIXmzbhoHzWwvwYVYZTXzIWJyWhQHY/pub?output=csv&gid=${gid}`);
+            
+            const text = (await response.text()).replace(/^\uFEFF/, ''); 
+            const parsed = parseCSV(text);
+            
+            const mappedData = parsed.map((row, index) => ({
+              id: index + 1,
+              bil: getVal(row, ['BIL', 'NO']) || index + 1,
+              zon: getVal(row, ['ZON']).trim().toUpperCase(),
+              kod_sekolah: getVal(row, ['KOD SEKOLAH']),
+              nama_sekolah: getVal(row, ['NAMA SEKOLAH']),
+              nama: getVal(row, ['NAMA', 'NAMA GURU']),
+              ikhtisas: getVal(row, ['IKHTISAS']),
+              pengkhususan_dip: getVal(row, ['PENGKHUSUSAN DIP']),
+              pengkhususan_ism: getVal(row, ['PENGKHUSUSAN ISM', 'PENKGHUSUSAN ISM']),
+              pengkhususan_isl: getVal(row, ['PENGKHUSUSAN ISL', 'PENKGHUSUSAN ISL']),
+              pengkhususan_phd: getVal(row, ['PENGKHUSUSAN PHD', 'PENGHUSUSAN PHD']),
+              opsyen_1: getVal(row, ['OPSYEN 1']),
+              opsyen_2: getVal(row, ['OPSYEN 2']),
+              opsyen_3: getVal(row, ['OPSYEN 3']),
+              opsyen_dominan: getVal(row, ['OPSYEN DOMINAN']),
+              subjek_ajar1: getVal(row, ['SUBJEK AJAR1', 'SUBJEK AJAR 1']),
+              bil_waktu1: parseInt(getVal(row, ['BIL WAKTU1', 'BIL WAKTU 1'])) || 0,
+              subjek_ajar2: getVal(row, ['SUBJEK AJAR2', 'SUBJEK AJAR 2']),
+              bil_waktu2: parseInt(getVal(row, ['BIL WAKTU2', 'BIL WAKTU 2'])) || 0,
+              subjek_ajar3: getVal(row, ['SUBJEK AJAR3', 'SUBJEK AJAR 3']),
+              bil_waktu3: parseInt(getVal(row, ['BIL WAKTU3', 'BIL WAKTU 3'])) || 0,
+              gred_penyandang: getVal(row, ['GRED PENYANDANG'])
+            })).filter(d => d.nama && d.nama.trim() !== '' && d.nama_sekolah && d.nama_sekolah.trim() !== ''); 
+
+            if (mappedData.length > 0) {
+              setLiveData(mappedData);
+            } else {
+              setLiveData(MOCK_DATA);
+            }
+          } catch (error) {
+            console.error("Error fetching CSV:", error);
+            setLiveData(MOCK_DATA);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+
+        fetchCSV();
+      }, [appMode]);
+
+      useEffect(() => {
+        if (isDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }, [isDarkMode]);
+
+      const analyticsData = useMemo(() => {
+        let baseData = liveData;
+        
+        if (selectedZone !== 'ALL') {
+          baseData = baseData.filter(d => d.zon === selectedZone);
+        }
+        if (selectedSchool !== 'ALL') {
+          baseData = baseData.filter(d => d.nama_sekolah === selectedSchool);
+        }
+        if (searchQuery) {
+          const lowerQuery = searchQuery.toLowerCase();
+          baseData = baseData.filter(d => 
+            (d.nama && d.nama.toLowerCase().includes(lowerQuery)) || 
+            (d.nama_sekolah && d.nama_sekolah.toLowerCase().includes(lowerQuery)) ||
+            (d.opsyen_dominan && d.opsyen_dominan.toLowerCase().includes(lowerQuery)) ||
+            (d.subjek_ajar1 && d.subjek_ajar1.toLowerCase().includes(lowerQuery)) ||
+            (d.subjek_ajar2 && d.subjek_ajar2.toLowerCase().includes(lowerQuery))
+          );
+        }
+
+        const isJawatanOption = (val) => {
+          if (!val) return false;
+          const upper = String(val).trim().toUpperCase();
+          const jawatanList = ['GURU BESAR', 'PENGETUA', 'PENOLONG KANAN', 'PK PENTADBIRAN', 'PK HEM', 'PK KOKU', 'PK KOKURIKULUM', 'PK PETANG', 'PK TINGKATAN 6', 'PK PENDIDIKAN KHAS', 'GURU KANAN', 'GKMP'];
+          return jawatanList.some(j => upper.includes(j)) || upper === 'PK' || upper === 'GPK' || upper === 'GB';
+        };
+
+        const keywordGroups = [
+          ['MELAYU', 'BM', 'B.M'],
+          ['INGGERIS', 'BI', 'B.I', 'ENGLISH', 'ENG'],
+          ['ISLAM', 'PI', 'P.I', 'AGAMA', 'PAI', 'TASAWWUR', 'SYARIAH', 'AL-QURAN', 'SUNNAH', 'USULUDDIN'],
+          ['MORAL', 'PM', 'P.M'],
+          ['MATEMATIK', 'MATH', 'MATHS', 'MT', 'MATE', 'TAMBAHAN', 'ADD MATH'],
+          ['SAINS', 'SCIENCE', 'SN', 'SC'],
+          ['SEJARAH', 'SEJ'],
+          ['GEOGRAFI', 'GEO'],
+          ['JASMANI', 'KESIHATAN', 'PJK', 'PJ', 'PK', 'PEND. JASMANI'],
+          ['SENI', 'PSV', 'S.VISUAL', 'DSV', 'SENI VISUAL'],
+          ['MUZIK', 'PMZ'],
+          ['RBT', 'REKA BENTUK', 'TEKNOLOGI', 'KEMAHIRAN HIDUP', 'KHB', 'SRT', 'ERT'],
+          ['PRASEKOLAH', 'PRA SEKOLAH', 'PRA'],
+          ['PEMULIHAN'],
+          ['ARAB', 'B.A', 'B.ARAB'],
+          ['CINA', 'BC', 'B.C', 'B.CINA'],
+          ['TAMIL', 'BT', 'B.T', 'B.TAMIL'],
+          ['FIZIK', 'PHYSICS'],
+          ['KIMIA', 'CHEMISTRY'],
+          ['BIOLOGI', 'BIOLOGY'],
+          ['AKAUN', 'PERAKAUNAN', 'PA'],
+          ['EKONOMI'],
+          ['PERNIAGAAN', 'P.PERNIAGAAN'],
+          ['KOMPUTER', 'ASK', 'SK', 'TMK', 'SAINS KOMPUTER'],
+          ['PENGURUSAN', 'PPB']
+        ];
+
+        const isMatchFn = (optArr, subjStr) => {
+          const s = String(subjStr).trim().toUpperCase();
+          if (!s || s === '-') return false;
+          return optArr.some(o => {
+            const opt = String(o).trim().toUpperCase();
+            if (s === opt) return true;
+            if (s.length > 4 && opt.includes(s)) return true;
+            if (opt.length > 4 && s.includes(opt)) return true;
+
+            for (const group of keywordGroups) {
+              const hasKeyword = (str, kw) => {
+                if (str === kw) return true;
+                if (kw.length <= 3) {
+                  const regex = new RegExp('(^|[^A-Z0-9])' + kw.replace(/\./g, '\\.') + '([^A-Z0-9]|$)');
+                  return regex.test(str);
+                }
+                return str.includes(kw);
+              };
+              if (group.some(kw => hasKeyword(opt, kw)) && group.some(kw => hasKeyword(s, kw))) return true;
+            }
+            return false;
+          });
+        };
+
+        const enrichedData = baseData.map(d => {
+          const options = [
+            d.opsyen_1, d.opsyen_2, d.opsyen_3, d.opsyen_dominan,
+            d.pengkhususan_dip, d.pengkhususan_ism, d.pengkhususan_isl, d.pengkhususan_phd
+          ].filter(Boolean).map(o => String(o).trim().toUpperCase()).filter(o => !isJawatanOption(o));
+            
+          let waktuOpsyen = 0;
+          let waktuLain = 0;
+          let subjekBukanOpsyen = [];
+
+          const checkSubjek = (subjek, waktu) => {
+            if (!subjek || String(subjek).trim() === '' || String(subjek).trim() === '-') return;
+            const s = String(subjek).trim().toUpperCase();
+            let w = parseInt(String(waktu).replace(/[^0-9]/g, ''));
+            if (isNaN(w) || w <= 0) w = 1; 
+            
+            if (isMatchFn(options, s)) {
+              waktuOpsyen += w;
+            } else {
+              waktuLain += w;
+              const displayW = (w === 1 && (!waktu || parseInt(waktu) === 0)) ? '?' : w;
+              subjekBukanOpsyen.push(`${s} (${displayW})`);
+            }
+          };
+
+          checkSubjek(d.subjek_ajar1, d.bil_waktu1);
+          checkSubjek(d.subjek_ajar2, d.bil_waktu2);
+          checkSubjek(d.subjek_ajar3, d.bil_waktu3);
+
+          const totalWaktu = waktuOpsyen + waktuLain;
+          const peratusOpsyen = totalWaktu > 0 ? Math.round((waktuOpsyen / totalWaktu) * 100) : 0;
+          const statusLuarOpsyen = totalWaktu > 0 && waktuOpsyen < waktuLain;
+
+          const validDisplayOptions = [
+            d.opsyen_dominan, d.pengkhususan_ism, d.opsyen_1, d.pengkhususan_dip, d.opsyen_2
+          ].filter(Boolean).map(o => String(o).trim().toUpperCase()).filter(o => !isJawatanOption(o));
+
+          const displayOpsyen = validDisplayOptions.length > 0 ? validDisplayOptions[0] : 'TIADA REKOD';
+
+          return { ...d, waktuOpsyen, waktuLain, totalWaktu, peratusOpsyen, statusLuarOpsyen, subjekBukanOpsyen: subjekBukanOpsyen.join(', '), displayOpsyen };
+        });
+
+        const totalGuru = enrichedData.length;
+        const riskData = enrichedData.filter(d => d.statusLuarOpsyen).sort((a, b) => a.peratusOpsyen - b.peratusOpsyen);
+        const guruLuarOpsyen = riskData.length;
+        const totalWaktuCount = enrichedData.reduce((sum, guru) => sum + guru.totalWaktu, 0);
+        const avgWaktu = totalGuru ? (totalWaktuCount / totalGuru).toFixed(1) : 0;
+
+        const opsyenCounts = {};
+        enrichedData.forEach(d => {
+          const ops = d.displayOpsyen ? d.displayOpsyen.trim() : 'TIADA MAKLUMAT';
+          if (ops !== '') opsyenCounts[ops] = (opsyenCounts[ops] || 0) + 1;
+        });
+        const optionStats = Object.entries(opsyenCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+        let pieData = [];
+        if (optionStats.length > 5) {
+          pieData = optionStats.slice(0, 5);
+          const othersCount = optionStats.slice(5).reduce((sum, item) => sum + item.count, 0);
+          if (othersCount > 0) pieData.push({ name: 'LAIN-LAIN', value: othersCount });
+        } else {
+          pieData = optionStats.map(o => ({ name: o.name, value: o.count }));
+        }
+
+        const subjectMap = {};
+        enrichedData.forEach(d => {
+          const addSubj = (subj, hours) => {
+            if (!subj || subj.trim() === '') return;
+            const s = subj.trim().toUpperCase();
+            if (!subjectMap[s]) subjectMap[s] = { name: s, count: 0, hours: 0 };
+            subjectMap[s].count++;
+            subjectMap[s].hours += (parseInt(hours) || 0);
+          };
+          addSubj(d.subjek_ajar1, d.bil_waktu1);
+          addSubj(d.subjek_ajar2, d.bil_waktu2);
+          addSubj(d.subjek_ajar3, d.bil_waktu3);
+        });
+        const subjectStats = Object.values(subjectMap).map(s => ({ ...s, avgHours: s.count ? (s.hours / s.count).toFixed(1) : 0 })).sort((a, b) => b.count - a.count);
+
+        const schoolMap = {};
+        enrichedData.forEach(d => {
+          const s = d.nama_sekolah || 'TIADA NAMA SEKOLAH';
+          if (!schoolMap[s]) { schoolMap[s] = { name: s, zon: d.zon, totalGuru: 0, luarOpsyen: 0, totalHours: 0, Subjek1: 0, Subjek2: 0, Subjek3: 0 }; }
+          schoolMap[s].totalGuru++;
+          if (d.statusLuarOpsyen) schoolMap[s].luarOpsyen++;
+          schoolMap[s].totalHours += d.totalWaktu;
+          schoolMap[s].Subjek1 += d.bil_waktu1 || 0;
+          schoolMap[s].Subjek2 += d.bil_waktu2 || 0;
+          schoolMap[s].Subjek3 += d.bil_waktu3 || 0;
+        });
+        const schoolStats = Object.values(schoolMap).map(s => ({
+          ...s, avgHours: s.totalGuru ? (s.totalHours / s.totalGuru).toFixed(1) : 0, riskPct: s.totalGuru ? parseFloat(((s.luarOpsyen / s.totalGuru) * 100).toFixed(1)) : 0
+        })).sort((a, b) => b.riskPct - a.riskPct);
+
+        const highRiskSchools = [...schoolStats].filter(s => s.luarOpsyen > 0).slice(0, 5);
+
+        const luarOpsyenByZone = {};
+        riskData.forEach(d => {
+          const z = d.zon ? String(d.zon).toUpperCase().trim() : 'LAIN-LAIN';
+          luarOpsyenByZone[z] = (luarOpsyenByZone[z] || 0) + 1;
+        });
+        const barDataLuar = Object.entries(luarOpsyenByZone).map(([zon, count]) => ({ zon, count }));
+
+        const optionsBySchool = {};
+        enrichedData.forEach(d => {
+          const schoolName = d.nama_sekolah || 'TIADA NAMA SEKOLAH';
+          if (!optionsBySchool[schoolName]) optionsBySchool[schoolName] = new Set();
+          const ops = [d.opsyen_1, d.opsyen_2, d.opsyen_3, d.opsyen_dominan, d.pengkhususan_dip, d.pengkhususan_ism, d.pengkhususan_isl, d.pengkhususan_phd]
+            .filter(Boolean).map(o => String(o).trim().toUpperCase()).filter(o => !isJawatanOption(o));
+          ops.forEach(o => optionsBySchool[schoolName].add(o));
+        });
+
+        const schoolStatus = {};
+        enrichedData.forEach(d => {
+          const schoolName = d.nama_sekolah || 'TIADA NAMA SEKOLAH';
+          if (!schoolStatus[schoolName]) {
+            schoolStatus[schoolName] = { name: schoolName, "Ajar Opsyen": 0, "Luar Opsyen": 0, "Ketidakpadanan": 0 };
+          }
+          if (!d.statusLuarOpsyen) {
+            schoolStatus[schoolName]["Ajar Opsyen"]++;
+          } else {
+            let schoolHasOption = false;
+            const optionsOfTeacher = [d.opsyen_1, d.opsyen_2, d.opsyen_3, d.opsyen_dominan, d.pengkhususan_dip, d.pengkhususan_ism, d.pengkhususan_isl, d.pengkhususan_phd]
+              .filter(Boolean).map(o => String(o).trim().toUpperCase()).filter(o => !isJawatanOption(o));
+            const subjectsTeaching = [d.subjek_ajar1, d.subjek_ajar2, d.subjek_ajar3].filter(Boolean).map(s => String(s).trim().toUpperCase());
+            const schoolOptsArr = Array.from(optionsBySchool[schoolName] || []);
+
+            for (let s of subjectsTeaching) {
+                if (!isMatchFn(optionsOfTeacher, s) && isMatchFn(schoolOptsArr, s)) {
+                    schoolHasOption = true;
+                    break;
+                }
+            }
+            if (schoolHasOption) { schoolStatus[schoolName]["Ketidakpadanan"]++; } 
+            else { schoolStatus[schoolName]["Luar Opsyen"]++; }
+          }
+        });
+        const statusPenempatanData = Object.values(schoolStatus);
+
+        return { totalGuru, guruLuarOpsyen, totalWaktu: totalWaktuCount, avgWaktu, pieData, barDataLuar, schoolStats, filteredData: enrichedData, riskData, highRiskSchools, statusPenempatanData, subjectStats, optionStats };
+      }, [searchQuery, selectedZone, selectedSchool, liveData]);
+
+      const exportToCSV = () => {
+        let dataToExport = [];
+        let filename = "Laporan.csv";
+
+        if (activeTab === 'subjek_ajar') {
+          dataToExport = analyticsData.subjectStats.map((d, i) => ({ Bil: i+1, Subjek: d.name, "Bilangan Guru": d.count, "Jumlah Waktu Keseluruhan": d.hours, "Purata Waktu/Guru": d.avgHours }));
+          filename = "Matriks_Subjek.csv";
+        } else if (activeTab === 'statistik') {
+          dataToExport = analyticsData.schoolStats.map((d, i) => ({ Bil: i+1, Zon: d.zon, Sekolah: d.name, "Jumlah Guru": d.totalGuru, "Jumlah Waktu": d.totalHours, "Purata Waktu": d.avgHours, "Luar Opsyen": d.luarOpsyen, "Peratus Kritikal (%)": d.riskPct }));
+          filename = "Statistik_Keseluruhan_Sekolah.csv";
+        } else if (activeTab === 'analisis_opsyen') {
+          dataToExport = analyticsData.optionStats.map((d, i) => ({ Bil: i+1, "Opsyen Dominan": d.name, "Bilangan Kepakaran (Guru)": d.count }));
+          filename = "Analitik_Opsyen_Kepakaran.csv";
+        } else if (activeTab === 'luar_opsyen') {
+          dataToExport = analyticsData.riskData.map((d, i) => ({ Bil: i+1, Sekolah: d.nama_sekolah, "Nama Guru": d.nama, "Opsyen Dominan": d.displayOpsyen, "Waktu Mengajar Opsyen": d.waktuOpsyen, "Waktu Luar Opsyen": d.waktuLain, "Peratusan Opsyen (%)": d.peratusOpsyen, "Subjek Bukan Opsyen (Waktu)": d.subjekBukanOpsyen }));
+          filename = "Senarai_Guru_Kurang_Mengajar_Opsyen.csv";
+        } else {
+          dataToExport = analyticsData.filteredData.map((d, i) => ({ Bil: i+1, Zon: d.zon, Sekolah: d.nama_sekolah, "Nama Guru": d.nama, Ikhtisas: d.ikhtisas, "Opsyen Dominan": d.displayOpsyen, "Subjek 1": d.subjek_ajar1, "Waktu 1": d.bil_waktu1, "Subjek 2": d.subjek_ajar2, "Waktu 2": d.bil_waktu2 }));
+          filename = "Pangkalan_Data_Guru.csv";
+        }
+
+        if (dataToExport.length === 0) return;
+        const headers = Object.keys(dataToExport[0] || {}).join(',');
+        const rows = dataToExport.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([`${headers}\n${rows}`], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      const SIDEBAR_MENU = [
+        { id: 'dashboard', label: 'Ruang Kawalan Utama', icon: LayoutDashboard },
+        { id: 'zon_bangsar', label: 'Zon Bangsar', icon: MapPin },
+        { id: 'zon_pudu', label: 'Zon Pudu', icon: MapIcon },
+        { id: 'profil_guru', label: 'Pangkalan Data Guru', icon: Users },
+        { id: 'analisis_opsyen', label: 'Analitik Opsyen', icon: PieChartIcon },
+        { id: 'subjek_ajar', label: 'Matriks Subjek', icon: BookOpen },
+        { id: 'luar_opsyen', label: 'Pemantauan Berisiko', icon: AlertTriangle },
+        { id: 'statistik', label: 'Statistik Keseluruhan', icon: BarChart2 },
+      ];
+
+      const renderContent = () => {
+        if (activeTab === 'dashboard') {
+          return (
+            <div className="space-y-4 md:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-900/20 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 md:p-5 flex items-center gap-4 md:gap-5 shadow-sm">
+                  <div className="p-3 bg-white dark:bg-indigo-900/50 rounded-xl shadow-indigo-200 dark:shadow-none shadow-md shrink-0">
+                    {appMode === 'SR' ? <School className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-cyan-400" /> : <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-violet-400" />}
+                  </div>
+                  <div>
+                    <h2 className="text-indigo-900 dark:text-indigo-100 font-bold text-base md:text-lg tracking-tight">Sistem Analitik {appMode}</h2>
+                    <p className="text-xs md:text-sm text-indigo-700/80 dark:text-indigo-300/70 mt-1 leading-relaxed">Papan pemuka ini menapis data khusus bagi unjuran <b>Sekolah {appMode === 'SR' ? 'Rendah' : 'Menengah'}</b>.</p>
+                  </div>
+                </div>
+                <div className={`rounded-2xl p-4 md:p-5 flex items-center gap-4 md:gap-5 border transition-colors duration-500 shadow-sm ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-700/50' : 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-900/20 border-amber-200 dark:border-amber-500/30'}`}>
+                  <div className={`p-3 rounded-xl shadow-md shrink-0 ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'bg-slate-50 dark:bg-slate-800 shadow-slate-200 dark:shadow-none' : 'bg-white dark:bg-amber-900/50 shadow-amber-200 dark:shadow-none'}`}>
+                    <Filter className="w-6 h-6 md:w-8 md:h-8 text-slate-400 dark:text-slate-500" />
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-sm tracking-tight ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-700 dark:text-slate-300' : 'text-amber-900 dark:text-amber-100'}`}>Konteks Data Semasa</h3>
+                    <p className={`text-xs md:text-sm mt-1 leading-relaxed ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-500 dark:text-slate-400' : 'text-amber-700/80 dark:text-amber-300/80'}`}>
+                      {selectedZone === 'ALL' && selectedSchool === 'ALL' ? (<span>Memaparkan <b>keseluruhan data</b> zon & sekolah.</span>) : (<span>Mod tapisan aktif: {selectedZone !== 'ALL' && <span className="font-bold text-amber-600 dark:text-amber-400">Zon {selectedZone}</span>}{selectedZone !== 'ALL' && selectedSchool !== 'ALL' && <span>, </span>}{selectedSchool !== 'ALL' && <span className="font-bold text-amber-600 dark:text-amber-400">{selectedSchool}</span>}</span>)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <KPICard title="Jumlah Guru" value={analyticsData.totalGuru} icon={Users} colorClass="from-cyan-400 to-blue-600" trend={selectedSchool !== 'ALL' ? selectedSchool : (selectedZone !== 'ALL' ? `Zon ${selectedZone}` : "Keseluruhan Data")} />
+                <KPICard title="Luar Opsyen" value={analyticsData.guruLuarOpsyen} icon={AlertTriangle} colorClass="from-rose-400 to-red-600" trend="Kritikal (< 50% Waktu)" />
+                <KPICard title="Jumlah Waktu" value={analyticsData.totalWaktu} icon={BookOpen} colorClass="from-emerald-400 to-teal-600" />
+                <KPICard title="Purata Waktu" value={analyticsData.avgWaktu} icon={BarChart2} colorClass="from-violet-400 to-indigo-600" />
+              </div>
+
+              <Card className="p-4 md:p-6">
+                <div className="mb-4 md:mb-6">
+                  <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white tracking-tight">Status Penempatan & Ketidakpadanan Subjek</h3>
+                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mt-1">Analitik ketidakpadanan jadual (Guru mengajar luar opsyen sedangkan sekolah mempunyai kepakaran).</p>
+                </div>
+                <div className="h-[300px] md:h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analyticsData.statusPenempatanData} margin={{ top: 20, right: 10, left: -20, bottom: 50 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#1e293b' : '#e2e8f0'} vertical={false} />
+                      <XAxis dataKey="name" stroke={isDarkMode ? '#64748b' : '#94a3b8'} angle={-45} textAnchor="end" height={80} tick={{fontSize: 10}} axisLine={false} tickLine={false} />
+                      <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 10}} />
+                      <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} />
+                      <Legend verticalAlign="top" height={40} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '500' }}/>
+                      <Bar dataKey="Ajar Opsyen" stackId="a" fill="#10b981" name="Padan (Opsyen)" />
+                      <Bar dataKey="Luar Opsyen" stackId="a" fill="#f59e0b" name="Kekurangan Opsyen" />
+                      <Bar dataKey="Ketidakpadanan" stackId="a" fill="#f43f5e" name="Ketidakpadanan (Ada Kepakaran)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <Card className="p-4 md:p-6">
+                  <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Opsyen Dominan {selectedZone !== 'ALL' ? `(Zon ${selectedZone})` : ''}</h3>
+                  <p className="text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Top 5 Opsyen Tertinggi & Lain-lain</p>
+                  <div className="h-60 md:h-72 relative">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-500/10 rounded-full blur-xl"></div></div>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={analyticsData.pieData} cx="50%" cy="50%" innerRadius="55%" outerRadius="80%" paddingAngle={4} dataKey="value" labelLine={false} label={renderCustomizedLabel} stroke="none">
+                          {analyticsData.pieData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                        </Pie>
+                        <RechartsTooltip contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} itemStyle={{ fontWeight: '600' }} />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+                <Card className="p-4 md:p-6">
+                  <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Statistik Luar Opsyen (Zon)</h3>
+                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Perbandingan mengikut kawasan.</p>
+                  <div className="h-60 md:h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.barDataLuar} margin={{ left: -20 }}>
+                        <defs>
+                          <linearGradient id="colorBarLuar" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f43f5e"/><stop offset="100%" stopColor="#be123c"/></linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#1e293b' : '#e2e8f0'} vertical={false} />
+                        <XAxis dataKey="zon" stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 10}}/>
+                        <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} allowDecimals={false} axisLine={false} tickLine={false} tick={{fontSize: 10}}/>
+                        <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} />
+                        <Bar dataKey="count" fill="url(#colorBarLuar)" radius={[6, 6, 0, 0]} name="Bilangan Guru Luar Opsyen" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          );
+        }
+
+        if (activeTab === 'analisis_opsyen') {
+          return (
+            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+              <TableViewHeader title="Analitik Opsyen" subtitle="Taburan bilangan guru berdasarkan senarai Opsyen Dominan (Kepakaran)" searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
+              <DraggableTableContainer>
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-16 md:w-20">Bil</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-right w-32 md:w-48">Bilangan Guru</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
+                    {analyticsData.optionStats.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-indigo-600 dark:text-cyan-400">{row.name}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-slate-900 dark:text-white text-right">{row.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DraggableTableContainer>
+            </Card>
+          );
+        }
+
+        if (activeTab === 'subjek_ajar') {
+          return (
+            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+              <TableViewHeader title="Matriks Subjek" subtitle="Rumusan waktu pengajaran mengikut mata pelajaran yang diajar." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
+              <DraggableTableContainer>
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-16">Bil</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Mata Pelajaran</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Bilangan Guru</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
+                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
+                    {analyticsData.subjectStats.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-indigo-600 dark:text-indigo-300">{row.name}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-semibold text-slate-800 dark:text-slate-200 text-center">{row.count}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.hours}</td>
+                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DraggableTableContainer>
+            </Card>
+          );
+        }
+
+        if (activeTab === 'statistik') {
+          return (
+            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+              <TableViewHeader title="Statistik Keseluruhan" subtitle="Kompilasi taburan sumber manusia dan tahap kritikal di setiap sekolah." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
+              <DraggableTableContainer>
+                <table className="w-full text-left border-collapse min-w-[900px]">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-12">Bil</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Sekolah</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Guru</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Guru Luar Opsyen</th>
+                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status Kritikal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
+                    {analyticsData.schoolStats.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+                        <td className="px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400">{row.zon}</td>
+                        <td className="px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white">{row.name}</td>
+                        <td className="px-4 py-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 text-center">{row.totalGuru}</td>
+                        <td className="px-4 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.totalHours}</td>
+                        <td className="px-4 py-2.5 text-xs font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
+                        <td className="px-4 py-2.5 text-xs font-bold text-rose-500 dark:text-rose-400 text-center">{row.luarOpsyen}</td>
+                        <td className="px-4 py-2.5 text-xs text-center">
+                          <span className={`px-2 py-1 rounded-md text-[10px] font-bold tracking-wide ${row.riskPct > 15 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20' : row.riskPct > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'}`}>
+                            {row.riskPct}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DraggableTableContainer>
+            </Card>
+          );
+        }
+
+        if (activeTab === 'luar_opsyen') {
+          return (
+            <Card className="flex flex-col h-full border-0 border-l-4 border-l-rose-500 rounded-none md:rounded-2xl">
+              <TableViewHeader title="Pemantauan Berisiko & Opsyen" subtitle="Senarai khas guru yang tidak mengajar opsyen kepakaran atau mengajar < 50% dari waktu kepakaran mereka." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
+              <DraggableTableContainer>
+                <table className="w-full text-left border-collapse min-w-[1000px]">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-10 text-center">Bil</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Subjek Luar Opsyen (Waktu)</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Opsyen</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Luar Opsyen</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">% Opsyen</th>
+                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
+                    {analyticsData.riskData.map((row, idx) => (
+                      <tr key={row.id} className="hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-colors">
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-700 dark:text-slate-300 font-medium text-center">{idx + 1}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-slate-900 dark:text-white">{row.nama}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span></td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-rose-600 dark:text-rose-400">{row.subjekBukanOpsyen || '-'}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200 text-center">{row.waktuOpsyen}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-rose-500 dark:text-rose-400 text-center">{row.waktuLain}</td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-center">
+                          <span className={`px-2 py-0.5 rounded text-[10px] md:text-[11px] font-bold ${row.peratusOpsyen === 0 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>{row.peratusOpsyen}%</span>
+                        </td>
+                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-center">
+                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] md:text-[10px] font-bold shadow-sm ${row.peratusOpsyen === 0 ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white'}`}>{row.peratusOpsyen === 0 ? 'Sifar Opsyen' : '< 50% Waktu'}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DraggableTableContainer>
+            </Card>
+          );
+        }
+
+        return (
+          <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+            <TableViewHeader title={SIDEBAR_MENU.find(m => m.id === activeTab)?.label || 'Pangkalan Data'} subtitle="Jadual pangkalan data utama memaparkan senarai terperinci semua maklumat guru." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
+            <DraggableTableContainer>
+              <table className="w-full text-left border-collapse min-w-[1100px]">
+                <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Bil</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Ikhtisas</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek 1</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek 2</th>
+                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Risiko</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
+                  {analyticsData.filteredData.map((row, idx) => (
+                    <tr key={row.id} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300 font-medium">{row.bil}</td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm font-medium"><span className={`px-2 py-0.5 rounded text-[10px] md:text-xs font-bold tracking-wide ${row.zon === 'BANGSAR' ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-500/10 dark:text-cyan-400' : 'bg-violet-100 text-violet-800 dark:bg-violet-500/10 dark:text-violet-400'}`}>{row.zon}</span></td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah}</td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm font-bold text-slate-900 dark:text-white">{row.nama}</td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-600 dark:text-slate-400">{row.ikhtisas}</td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span></td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar1 || '-'} <span className="font-bold text-cyan-600 dark:text-cyan-400">{row.bil_waktu1 ? `(${row.bil_waktu1})` : ''}</span></td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar2 || '-'} <span className="font-bold text-violet-600 dark:text-violet-400">{row.bil_waktu2 ? `(${row.bil_waktu2})` : ''}</span></td>
+                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-center">
+                        {row.statusLuarOpsyen ? (<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] md:text-[10px] uppercase font-bold bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-sm"><AlertTriangle className="w-3 h-3" /> Luar Opsyen</span>) : (<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] md:text-[10px] uppercase font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-sm">Padan</span>)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </DraggableTableContainer>
+          </Card>
+        );
+      };
+
+      if (appMode === 'landing') {
+        return (
+          <div className={`w-full h-full bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative flex flex-col overflow-y-auto overflow-x-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
+            
+            {/* Hiasan Latar Glow */}
+            {isDarkMode && (<><div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[100px] md:blur-[150px] pointer-events-none z-0"></div><div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[100px] md:blur-[150px] pointer-events-none z-0"></div></>)}
+            
+            {/* Butang Tema */}
+            <div className="absolute top-4 right-4 z-50">
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2.5 md:p-3 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                {isDarkMode ? <Sun className="w-4 h-4 md:w-5 md:h-5" /> : <Moon className="w-4 h-4 md:w-5 md:h-5" />}
+              </button>
+            </div>
+            
+            {/* Bahagian Kandungan Utama */}
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 md:px-6 pt-16 md:pt-20 pb-10 z-10 relative">
+              <div className="text-center mb-8 md:mb-12 space-y-3 md:space-y-4 w-full">
+                <div className="inline-flex items-center justify-center p-2 md:p-3 bg-white rounded-2xl mb-2 md:mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10 overflow-hidden">
+                  <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-16 md:h-24 w-auto object-contain" style={{ transform: 'scale(1.4)' }} />
+                </div>
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-400 to-violet-400 uppercase">Sistem Analitik Opsyen</h1>
+                <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-200">Dashboard Opsyen Guru</h2>
+                <p className="text-sm md:text-base lg:text-lg text-slate-500 dark:text-indigo-200/70 max-w-2xl mx-auto font-medium">Pejabat Pendidikan Daerah Bangsar/Pudu</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full z-20">
+                <button onClick={() => { setAppMode('SR'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-indigo-500/20 hover:border-cyan-400 dark:hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 relative overflow-hidden pointer-events-auto">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white mb-4 md:mb-6 shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform duration-500"><BookOpen className="w-6 h-6 md:w-8 md:h-8" /></div>
+                    <h3 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-1 md:mb-2">Sekolah Rendah</h3>
+                    <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SR).</p>
+                  </div>
+                </button>
+                <button onClick={() => { setAppMode('SM'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-indigo-500/20 hover:border-violet-400 dark:hover:border-violet-400/50 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-500 relative overflow-hidden pointer-events-auto">
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-600 flex items-center justify-center text-white mb-4 md:mb-6 shadow-lg shadow-violet-500/30 group-hover:scale-110 transition-transform duration-500"><GraduationCap className="w-6 h-6 md:w-8 md:h-8" /></div>
+                    <h3 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white mb-1 md:mb-2">Sekolah Menengah</h3>
+                    <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SM).</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            {/* Footer Animasi Gambar */}
+            <div className="relative w-full min-h-[120px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
+              <style>{`
+                @keyframes slideTogether {
+                  0% { transform: translateX(100vw); }
+                  100% { transform: translateX(-100%); }
+                }
+                .image-wrapper {
+                  position: absolute;
+                  top: 10px;
+                  height: calc(100% - 50px);
+                  display: flex;
+                  align-items: center;
+                  justify-content: flex-start;
+                  gap: 15vw;
+                  animation: slideTogether 20s linear infinite;
+                  white-space: nowrap;
+                  padding-left: 10vw;
+                }
+                .img-slide {
+                  height: 100%;
+                  max-height: 60px;
+                  width: auto;
+                  object-fit: contain;
+                  opacity: 0.7;
+                }
+                .dark .img-slide { opacity: 0.3; }
+              `}</style>
+              
+              <div className="image-wrapper">
+                <img src="https://i.postimg.cc/R0nkkSK1/Untitled-design-(2).png" alt="Hiasan Latar 1" className="img-slide" />
+                <img src="https://i.postimg.cc/R0nkkSK1/Untitled-design-(2).png" alt="Hiasan Latar 2" className="img-slide" />
+              </div>
+
+              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[9px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md py-4 md:py-5 mt-auto bg-gradient-to-t from-slate-50 via-slate-50 to-transparent dark:from-[#0B0F19] dark:via-[#0B0F19] dark:to-transparent">
+                Dibangunkan Oleh Sektor Pembelajaran<br/>Pejabat Pendidikan Daerah Bangsar/Pudu
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className={`w-full h-full bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 flex font-sans ${isDarkMode ? 'dark' : ''} selection:bg-indigo-500/30 overflow-hidden`}>
+          <aside className={`absolute md:relative inset-y-0 left-0 z-50 w-64 md:w-72 bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800/80 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} md:translate-x-0 flex-shrink-0 flex flex-col shadow-sm h-full`}>
+            <div className="p-4 md:p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-lg ${appMode === 'SR' ? 'bg-gradient-to-br from-cyan-400 to-blue-600 shadow-blue-500/30' : 'bg-gradient-to-br from-violet-400 to-fuchsia-600 shadow-violet-500/30'}`}>{appMode === 'SR' ? <School className="w-4 h-4 md:w-5 md:h-5" /> : <GraduationCap className="w-4 h-4 md:w-5 md:h-5" />}</div>
+                <div><h1 className="font-black text-base md:text-lg leading-none tracking-tight text-slate-800 dark:text-white uppercase">Analitik<span className={appMode === 'SR' ? 'text-blue-500 dark:text-cyan-400' : 'text-violet-500 dark:text-violet-400'}>.</span>{appMode}</h1><span className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs font-semibold tracking-wider">ZON BANGSAR/PUDU</span></div>
+              </div>
+              <button className="md:hidden text-slate-400 hover:text-slate-600 dark:hover:text-white p-1" onClick={() => setIsSidebarOpen(false)}><X className="w-5 h-5" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-4 md:py-6 px-3 md:px-4 space-y-1.5 scrollbar-thin">
+              <button onClick={() => { setAppMode('landing'); setActiveTab('dashboard'); setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-xl transition-all duration-300 text-xs md:text-sm font-semibold text-rose-500 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 mb-4 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30"><Home className="w-4 h-4 md:w-5 md:h-5" /> Kembali ke Utama</button>
+              <p className="px-3 text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 md:mb-3">Papan Kawalan</p>
+              {SIDEBAR_MENU.map((item) => {
+                const IconBase = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button key={item.id} onClick={() => { setActiveTab(item.id); if (item.id === 'zon_bangsar') { setSelectedZone('BANGSAR'); setSelectedSchool('ALL'); } else if (item.id === 'zon_pudu') { setSelectedZone('PUDU'); setSelectedSchool('ALL'); } else { setSelectedZone('ALL'); setSelectedSchool('ALL'); } if (window.innerWidth < 768) setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-xl transition-all duration-300 text-xs md:text-sm font-semibold relative overflow-hidden ${isActive ? 'text-white shadow-lg shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-violet-600' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'}`}>
+                    {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400"></div>}<IconBase className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`} />{item.label}
+                  </button>
+                )
+              })}
+            </div>
+          </aside>
+          
+          <main className="flex-1 flex flex-col min-w-0 h-full relative z-0">
+            <header className="h-16 md:h-20 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between px-4 md:px-8 z-10 shrink-0 shadow-sm">
+              <div className="flex items-center gap-3 md:gap-4">
+                <button className="md:hidden p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg" onClick={() => setIsSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
+                <div className="hidden sm:flex items-center text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wide"><span>Sistem Analitik</span><span className="ml-2 md:ml-3 px-2 py-0.5 md:px-2.5 md:py-1 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-md text-[9px] md:text-[10px] font-black uppercase tracking-wider shadow-md shadow-indigo-500/20">Sekolah {appMode === 'SR' ? 'Rendah' : 'Menengah'}</span><ChevronRight className="w-3 h-3 md:w-4 md:h-4 mx-1.5 md:mx-2 text-slate-300 dark:text-slate-600" /><span className="text-slate-800 dark:text-slate-200">{SIDEBAR_MENU.find(m => m.id === activeTab)?.label}</span></div>
+              </div>
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="relative flex items-center gap-1 md:gap-2"><Filter className="w-3 h-3 md:w-4 md:h-4 text-slate-400 hidden sm:block" /><select className="bg-slate-100 dark:bg-slate-800 border-none text-slate-700 dark:text-slate-200 text-xs md:text-sm font-semibold rounded-md md:rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none w-[90px] sm:w-[110px] md:w-[140px] p-1.5 md:p-2.5 cursor-pointer shadow-sm" value={selectedZone} onChange={(e) => { setSelectedZone(e.target.value); setSelectedSchool('ALL'); }}><option value="ALL">Semua Zon</option>{availableZones.map(zon => (<option key={zon} value={zon}>Zon {zon.charAt(0) + zon.slice(1).toLowerCase()}</option>))}</select></div>
+                <div className="relative flex items-center gap-1 md:gap-2"><select className="bg-slate-100 dark:bg-slate-800 border-none text-slate-700 dark:text-slate-200 text-xs md:text-sm font-semibold rounded-md md:rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none w-[110px] sm:w-[130px] md:w-[180px] truncate p-1.5 md:p-2.5 cursor-pointer shadow-sm" value={selectedSchool} onChange={(e) => setSelectedSchool(e.target.value)}><option value="ALL">Semua Sekolah</option>{availableSchools.map(school => (<option key={school} value={school}>{school}</option>))}</select></div>
+                <div className="w-px h-6 md:h-8 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 md:p-2.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg md:rounded-xl transition-all shadow-sm shrink-0">{isDarkMode ? <Sun className="w-4 h-4 md:w-5 md:h-5" /> : <Moon className="w-4 h-4 md:w-5 md:h-5" />}</button>
+              </div>
+            </header>
+            
+            <div className={`flex-1 overflow-y-auto relative z-10 scrollbar-thin ${activeTab === 'dashboard' ? 'p-3 md:p-6' : 'p-0 md:p-4'}`}>
+              <div className={`mx-auto h-full ${activeTab === 'dashboard' ? 'max-w-[1600px]' : 'max-w-full'}`}>
+                {isLoading ? (<div className="h-full flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-20"><div className="relative w-12 h-12 md:w-16 md:h-16 mb-4 md:mb-6"><div className="absolute inset-0 border-4 border-slate-200 dark:border-slate-800 rounded-full"></div><div className="absolute inset-0 border-4 border-cyan-500 rounded-full border-t-transparent animate-spin"></div></div><p className="text-xs md:text-sm font-semibold tracking-wide animate-pulse text-indigo-900 dark:text-cyan-400">Sinkronisasi Data Google Sheets...</p></div>) : (renderContent())}
+              </div>
+            </div>
+          </main>
+          
+          {isSidebarOpen && (<div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-opacity" onClick={() => setIsSidebarOpen(false)} />)}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
