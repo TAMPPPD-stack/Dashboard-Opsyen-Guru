@@ -25,16 +25,15 @@
   <script src="https://unpkg.com/recharts@2.1.12/umd/Recharts.js"></script>
   
   <style>
-    /* Styling responsif khusus untuk iFrame Google Sites */
-    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
-    #root { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    /* Styling khusus Google Sites supaya tidak terpotong */
+    html, body { width: 100%; min-height: 100%; margin: 0; padding: 0; overflow-x: hidden; }
+    #root { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
     
     .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
     .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
     .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
     .dark .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #334155; }
     
-    /* Melancarkan tatalan (scroll) jadual di skrin sentuh */
     .table-scroll-container {
       overflow-x: auto;
       overflow-y: auto;
@@ -179,21 +178,21 @@
 
     // --- KOMPONEN UI ---
     const Card = ({ children, className = "" }) => (
-      <div className={`bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg dark:shadow-indigo-500/5 border border-slate-200/60 dark:border-indigo-500/10 transition-all duration-300 relative overflow-hidden group ${className}`}>
+      <div className={`bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-sm hover:shadow-xl dark:shadow-indigo-500/10 border border-slate-200/60 dark:border-indigo-500/10 transition-all duration-300 relative overflow-hidden group ${className}`}>
         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
         {children}
       </div>
     );
 
     const KPICard = ({ title, value, icon: IconBase, trend, colorClass }) => (
-      <Card className="p-5 md:p-6 flex items-center justify-between">
+      <Card className="p-6 md:p-8 flex items-center justify-between">
         <div className="relative z-10">
-          <p className="text-xs md:text-sm font-semibold text-slate-500 dark:text-indigo-200/70 mb-1 uppercase tracking-wider">{title}</p>
-          <h3 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">{value}</h3>
-          {trend && <p className="text-[10px] md:text-xs text-indigo-500 dark:text-cyan-400 mt-2 font-medium flex items-center gap-1"><Sparkles className="w-3 h-3"/> {trend}</p>}
+          <p className="text-sm md:text-base font-bold text-slate-500 dark:text-indigo-200/70 mb-1 uppercase tracking-widest">{title}</p>
+          <h3 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tight">{value}</h3>
+          {trend && <p className="text-xs md:text-sm text-indigo-500 dark:text-cyan-400 mt-2 font-semibold flex items-center gap-1"><Icon name="Sparkles" className="w-4 h-4"/> {trend}</p>}
         </div>
-        <div className={`p-3 md:p-4 rounded-2xl bg-gradient-to-br ${colorClass} text-white shadow-lg shadow-current/30 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10`}>
-          <IconBase className="w-6 h-6 md:w-8 md:h-8" />
+        <div className={`p-4 md:p-5 rounded-2xl bg-gradient-to-br ${colorClass} text-white shadow-lg transform group-hover:scale-110 transition-all duration-300`}>
+          <IconBase className="w-8 h-8 md:w-10 md:h-10" />
         </div>
       </Card>
     );
@@ -301,6 +300,17 @@
         const schools = new Set(filtered.map(d => d.nama_sekolah).filter(Boolean));
         return Array.from(schools).sort();
       }, [liveData, selectedZone]);
+
+      useEffect(() => {
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.head.appendChild(link);
+        }
+        link.href = 'https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png';
+        document.title = 'Sistem Analitik Opsyen PPDBP';
+      }, []);
 
       useEffect(() => {
         if (appMode === 'landing') return;
@@ -688,7 +698,7 @@
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <Card className="p-4 md:p-6">
                   <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Opsyen Dominan {selectedZone !== 'ALL' ? `(Zon ${selectedZone})` : ''}</h3>
-                  <p className="text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Top 5 Opsyen Tertinggi & Lain-lain</p>
+                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Top 5 Opsyen Tertinggi & Lain-lain</p>
                   <div className="h-60 md:h-72 relative">
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-500/10 rounded-full blur-xl"></div></div>
                     <ResponsiveContainer width="100%" height="100%">
@@ -957,42 +967,21 @@
               </div>
             </div>
             
-            {/* Footer Animasi Gambar */}
-            <div className="relative w-full min-h-[120px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
+            {/* Footer Animasi Gambar Tunggal Besar */}
+            <div className="relative w-full min-h-[180px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
               <style>{`
-                @keyframes slideTogether {
-                  0% { transform: translateX(100vw); }
-                  100% { transform: translateX(-100%); }
-                }
-                .image-wrapper {
-                  position: absolute;
-                  top: 10px;
-                  height: calc(100% - 50px);
-                  display: flex;
-                  align-items: center;
-                  justify-content: flex-start;
-                  gap: 15vw;
-                  animation: slideTogether 20s linear infinite;
-                  white-space: nowrap;
-                  padding-left: 10vw;
-                }
-                .img-slide {
-                  height: 100%;
-                  max-height: 60px;
-                  width: auto;
-                  object-fit: contain;
-                  opacity: 0.7;
-                }
-                .dark .img-slide { opacity: 0.3; }
+                @keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+                .image-wrapper { position: absolute; top: 10px; height: 120px; display: flex; align-items: center; animation: slideAcross 30s linear infinite; white-space: nowrap; }
+                .img-slide { height: 100%; max-height: 120px; width: auto; object-fit: contain; opacity: 0.8; }
+                .dark .img-slide { opacity: 0.5; }
               `}</style>
               
               <div className="image-wrapper">
-                <img src="https://i.postimg.cc/R0nkkSK1/Untitled-design-(2).png" alt="Hiasan Latar 1" className="img-slide" />
-                <img src="https://i.postimg.cc/R0nkkSK1/Untitled-design-(2).png" alt="Hiasan Latar 2" className="img-slide" />
+                <img src="https://i.postimg.cc/R0nkkSK1/Untitled-design-(2).png" alt="Hiasan Latar" className="img-slide" />
               </div>
 
-              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[9px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md py-4 md:py-5 mt-auto bg-gradient-to-t from-slate-50 via-slate-50 to-transparent dark:from-[#0B0F19] dark:via-[#0B0F19] dark:to-transparent">
-                Dibangunkan Oleh Sektor Pembelajaran<br/>Pejabat Pendidikan Daerah Bangsar/Pudu
+              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-6 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent">
+                Dibangunkan Oleh Sektor Pembelajaran PPDBP
               </div>
             </div>
           </div>
