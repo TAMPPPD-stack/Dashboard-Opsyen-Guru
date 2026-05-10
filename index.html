@@ -644,7 +644,7 @@
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-900/20 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 md:p-5 flex items-center gap-4 md:gap-5 shadow-sm">
                   <div className="p-3 bg-white dark:bg-indigo-900/50 rounded-xl shadow-indigo-200 dark:shadow-none shadow-md shrink-0">
-                    {appMode === 'SR' ? <School className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-cyan-400" /> : <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-violet-400" />}
+                    {appMode === 'SR' ? <CustomIcon name="School" className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-cyan-400" /> : <CustomIcon name="GraduationCap" className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-violet-400" />}
                   </div>
                   <div>
                     <h2 className="text-indigo-900 dark:text-indigo-100 font-bold text-base md:text-lg tracking-tight">Sistem Analitik {appMode}</h2>
@@ -921,74 +921,109 @@
 
       if (appMode === 'landing') {
         return (
-          <div className={`w-full h-full bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative flex flex-col overflow-y-auto overflow-x-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
+          <div className={`min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
             
-            {/* Hiasan Latar Glow */}
-            {isDarkMode && (<><div className="fixed top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none z-0"></div><div className="fixed bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-600/10 blur-[120px] pointer-events-none z-0"></div></>)}
-            
-            {/* Butang Tema */}
+            {/* Glow Effects */}
+            {isDarkMode && (
+              <>
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div>
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div>
+              </>
+            )}
+
+            {/* Dark mode button */}
             <div className="absolute top-6 right-6 z-50">
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg">
-                {isDarkMode ? <CustomIcon name="Sun" className="w-6 h-6" /> : <CustomIcon name="Moon" className="w-6 h-6" />}
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 md:p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg">
+                {isDarkMode ? <CustomIcon name="Sun" className="w-5 h-5 md:w-6 md:h-6" /> : <CustomIcon name="Moon" className="w-5 h-5 md:w-6 md:h-6" />}
               </button>
             </div>
-            
-            {/* Bahagian Kandungan Utama */}
-            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-6 pt-10 pb-12 z-10 relative">
-              <div className="text-center mb-12 md:mb-16 space-y-6 w-full">
-                <div className="inline-flex items-center justify-center p-4 bg-white rounded-3xl mb-4 border border-indigo-500/20 shadow-2xl overflow-hidden transform hover:rotate-3 transition-transform">
-                  <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-24 md:h-32 w-auto object-contain" style={{ transform: 'scale(1.3)' }} />
+
+            {/* Hero Section */}
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-12 md:pt-16 flex-1 flex flex-col items-center justify-center">
+              <div className="text-center mb-12 space-y-4">
+                <div className="inline-flex items-center justify-center p-4 bg-white rounded-3xl mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10 overflow-hidden transform hover:rotate-3 transition-transform">
+                  <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-20 md:h-28 w-auto object-contain" style={{ transform: 'scale(1.3)' }} />
                 </div>
-                <div className="space-y-2">
-                  <h1 className="text-4xl md:text-7xl lg:text-8xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 uppercase leading-tight">
-                    Sistem Analitik Opsyen
-                  </h1>
-                  <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">
-                    Dashboard Kepakaran Guru PPDBP
-                  </h2>
-                  <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">
-                    Pejabat Pendidikan Daerah Bangsar/Pudu
-                  </p>
-                </div>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 uppercase leading-tight">
+                  Sistem Analitik Opsyen
+                </h1>
+                <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">
+                  Dashboard Kepakaran Guru PPDBP
+                </h2>
+                <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">
+                  Pejabat Pendidikan Daerah Bangsar/Pudu
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 w-full max-w-5xl z-20">
-                <button onClick={() => { setAppMode('SR'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-10 md:p-14 rounded-[2.5rem] bg-white dark:bg-slate-900/60 backdrop-blur-2xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-cyan-400 dark:hover:border-cyan-400/50 hover:shadow-[0_20px_50px_rgba(8,112,184,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              {/* Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+                <button onClick={() => { setAppMode('SR'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-8 md:p-12 rounded-[2.5rem] bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-cyan-400 dark:hover:border-cyan-400/50 hover:shadow-[0_20px_50px_rgba(8,112,184,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white mb-8 shadow-2xl group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500"><CustomIcon name="BookOpen" className="w-10 h-10 md:w-12 md:h-12" /></div>
-                    <h3 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white mb-3">Sekolah Rendah</h3>
-                    <p className="text-base md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SR).</p>
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-cyan-500/30 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                      <CustomIcon name="BookOpen" className="w-8 h-8 md:w-10 md:h-10" />
+                    </div>
+                    <h3 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">Sekolah Rendah</h3>
+                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SR).</p>
                   </div>
                 </button>
-                <button onClick={() => { setAppMode('SM'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-10 md:p-14 rounded-[2.5rem] bg-white dark:bg-slate-900/60 backdrop-blur-2xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-violet-500 dark:hover:border-violet-400/50 hover:shadow-[0_20px_50px_rgba(139,92,246,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <button onClick={() => { setAppMode('SM'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-8 md:p-12 rounded-[2.5rem] bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-violet-400 dark:hover:border-violet-400/50 hover:shadow-[0_20px_50px_rgba(139,92,246,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative z-10">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white mb-8 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"><CustomIcon name="GraduationCap" className="w-10 h-10 md:w-12 md:h-12" /></div>
-                    <h3 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white mb-3">Sekolah Menengah</h3>
-                    <p className="text-base md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SM).</p>
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      <CustomIcon name="GraduationCap" className="w-8 h-8 md:w-10 md:h-10" />
+                    </div>
+                    <h3 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">Sekolah Menengah</h3>
+                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SM).</p>
                   </div>
                 </button>
               </div>
             </div>
-            
-            {/* Footer Animasi Gambar Tunggal Besar */}
-            <div className="relative w-full min-h-[180px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
-              <style>{`
-                @keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
-                .image-wrapper { position: absolute; top: 10px; height: 120px; display: flex; align-items: center; animation: slideAcross 30s linear infinite; white-space: nowrap; }
-                .img-slide { height: 100%; max-height: 120px; width: auto; object-fit: contain; opacity: 0.8; }
-                .dark .img-slide { opacity: 0.5; }
-              `}</style>
+
+            {/* Footer Animation (Gambar dan Animasi Bucu Melengkung) */}
+            <div className="relative w-full h-[180px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-8 border-t border-slate-200/50 dark:border-slate-800/50">
+              <style>
+                {`
+                  @keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-150%); } }
+                  @keyframes shine { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
+                  @keyframes popInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+                  
+                  .anim-wrapper { position: absolute; top: 10px; height: 120px; display: flex; align-items: center; gap: 2rem; animation: slideAcross 35s linear infinite; white-space: nowrap; padding-right: 20vw; }
+                  
+                  .text-container { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0.25rem; animation: popInOut 2s ease-in-out infinite; }
+                  .text-animated { background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; text-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+                  
+                  .img-pan-base {
+                    height: 100%;
+                    max-height: 110px;
+                    width: auto;
+                    object-fit: cover;
+                    border-radius: 32px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+                    border: 4px solid rgba(255,255,255,0.7);
+                    opacity: 0.95;
+                  }
+                  .dark .img-pan-base {
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+                    border-color: rgba(255,255,255,0.1);
+                    opacity: 0.85;
+                  }
+                `}
+              </style>
               
-              <div className="image-wrapper">
-                <img src="https://i.postimg.cc/FKGLLmwt/Untitled-design-(3).png" alt="Hiasan Latar" className="img-slide" />
+              <div className="anim-wrapper">
+                <div className="text-container">
+                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase text-animated">SEKTOR PEMBELAJARAN</h2>
+                  <h3 className="text-lg md:text-2xl lg:text-3xl font-extrabold tracking-wide uppercase text-animated">PEJABAT PENDIDIKAN DAERAH BANGSAR/PUDU</h3>
+                </div>
+                <img src="https://i.postimg.cc/j2j2Y7jP/Untitled-design-(4).png" alt="Hiasan Latar" className="img-pan-base" />
               </div>
-
-              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-6 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent">
-                Dibangunkan Oleh Sektor Pembelajaran PPDBP
+              
+              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase py-6 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent mt-auto">
+                Sistem Analitik Opsyen & Kepakaran Guru
               </div>
             </div>
+
           </div>
         );
       }
