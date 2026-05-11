@@ -75,7 +75,9 @@
       Sparkles: <React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/><path d="M19 17v4"/><path d="M17 19h4"/></React.Fragment>,
       Home: <React.Fragment><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></React.Fragment>,
       GraduationCap: <React.Fragment><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></React.Fragment>,
-      PieChartIcon: <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>
+      PieChartIcon: <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>,
+      User: <React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>,
+      Lock: <React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>
     };
 
     const CustomIcon = ({ name, className }) => (
@@ -277,6 +279,22 @@
       const [liveData, setLiveData] = useState([]);
       const [isLoading, setIsLoading] = useState(false);
       const [dataError, setDataError] = useState(false);
+
+      // --- STATE LOG MASUK (LOGIN) ---
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [loginId, setLoginId] = useState('');
+      const [loginPassword, setLoginPassword] = useState('');
+      const [loginError, setLoginError] = useState('');
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (loginId === 'ADMIN' && loginPassword === 'spppdbp@w010') {
+          setIsAuthenticated(true);
+          setLoginError('');
+        } else {
+          setLoginError('ID Pengguna atau Kata Laluan tidak sah.');
+        }
+      };
 
       const availableZones = useMemo(() => {
         const zones = new Set(liveData.map(d => d.zon).filter(Boolean));
@@ -919,6 +937,91 @@
         );
       };
 
+      // --- PAPARAN LOG MASUK (LOGIN) ---
+      if (!isAuthenticated) {
+        return (
+          <div className={`min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
+            
+            {/* Glow Effects */}
+            {isDarkMode && (
+              <>
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div>
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div>
+              </>
+            )}
+
+            {/* Butang Tukar Tema */}
+            <div className="absolute top-6 right-6 z-50">
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 md:p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg">
+                {isDarkMode ? <CustomIcon name="Sun" className="w-5 h-5 md:w-6 md:h-6" /> : <CustomIcon name="Moon" className="w-5 h-5 md:w-6 md:h-6" />}
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center p-6 relative z-10 w-full max-w-md mx-auto">
+              <Card className="w-full p-8 md:p-10 border-t-4 border-t-cyan-500 shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center justify-center p-3 bg-white rounded-2xl mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10 overflow-hidden transform hover:scale-105 transition-transform">
+                    <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-16 md:h-20 w-auto object-contain" style={{ transform: 'scale(1.3)' }} />
+                  </div>
+                  <h2 className="text-2xl font-black uppercase tracking-tight text-slate-800 dark:text-white">Sistem Analitik</h2>
+                  <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1">Log Masuk Pentadbir</p>
+                </div>
+
+                <form onSubmit={handleLogin} className="space-y-5">
+                  {loginError && (
+                    <div className="p-3 bg-rose-100 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 rounded-xl text-xs md:text-sm font-bold text-center flex items-center justify-center gap-2 shadow-sm animate-pulse">
+                      <CustomIcon name="AlertTriangle" className="w-4 h-4 shrink-0" /> 
+                      <span>{loginError}</span>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">ID Pengguna</label>
+                    <div className="relative">
+                      <CustomIcon name="User" className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        value={loginId}
+                        onChange={(e) => setLoginId(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 md:py-3.5 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400"
+                        placeholder="Masukkan ID"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Kata Laluan</label>
+                    <div className="relative">
+                      <CustomIcon name="Lock" className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="password" 
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 md:py-3.5 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="w-full py-3.5 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl font-bold tracking-widest shadow-lg shadow-cyan-500/30 transform transition-all active:scale-95 uppercase text-sm"
+                  >
+                    Log Masuk Sistem
+                  </button>
+                </form>
+              </Card>
+              
+              <div className="mt-8 text-center text-[10px] md:text-xs font-bold tracking-[0.1em] text-slate-400 dark:text-slate-500 uppercase">
+                Hak Cipta Terpelihara Sektor Pembelajaran PPDBP
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // --- PAPARAN UTAMA (LANDING PAGE) ---
       if (appMode === 'landing') {
         return (
           <div className={`min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
