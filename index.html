@@ -52,7 +52,7 @@
     const Recharts = window.Recharts || {};
     const { BarChart = 'div', Bar = 'div', XAxis = 'div', YAxis = 'div', CartesianGrid = 'div', Tooltip: RechartsTooltip = 'div', Legend = 'div', ResponsiveContainer = 'div', PieChart = 'div', Pie = 'div', Cell = 'div' } = Recharts;
 
-    // --- KOLEKSI IKON INTERNAL (Bebas ralat Error #130) ---
+    // --- KOLEKSI IKON INTERNAL ---
     const SVGPaths = {
       LayoutDashboard: <React.Fragment><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></React.Fragment>,
       Users: <React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>,
@@ -77,7 +77,8 @@
       GraduationCap: <React.Fragment><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></React.Fragment>,
       PieChartIcon: <React.Fragment><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></React.Fragment>,
       User: <React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>,
-      Lock: <React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>
+      Lock: <React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>,
+      LogOut: <React.Fragment><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></React.Fragment>
     };
 
     const CustomIcon = ({ name, className }) => (
@@ -294,6 +295,14 @@
         } else {
           setLoginError('ID Pengguna atau Kata Laluan tidak sah.');
         }
+      };
+
+      // FUNGSI LOG KELUAR
+      const handleLogout = () => {
+        setIsAuthenticated(false);
+        setLoginId('');
+        setLoginPassword('');
+        setAppMode('landing');
       };
 
       const availableZones = useMemo(() => {
@@ -658,24 +667,24 @@
       const renderContent = () => {
         if (activeTab === 'dashboard') {
           return (
-            <div className="space-y-4 md:space-y-6">
+            <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-900/20 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 md:p-5 flex items-center gap-4 md:gap-5 shadow-sm">
+                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-900/20 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-5 flex items-center gap-5 shadow-sm">
                   <div className="p-3 bg-white dark:bg-indigo-900/50 rounded-xl shadow-indigo-200 dark:shadow-none shadow-md shrink-0">
-                    {appMode === 'SR' ? <CustomIcon name="School" className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-cyan-400" /> : <CustomIcon name="GraduationCap" className="w-6 h-6 md:w-8 md:h-8 text-indigo-600 dark:text-violet-400" />}
+                    {appMode === 'SR' ? <CustomIcon name="School" className="w-8 h-8 text-indigo-600 dark:text-cyan-400" /> : <CustomIcon name="GraduationCap" className="w-8 h-8 text-indigo-600 dark:text-violet-400" />}
                   </div>
                   <div>
                     <h2 className="text-indigo-900 dark:text-indigo-100 font-bold text-base md:text-lg tracking-tight">Sistem Analitik {appMode}</h2>
-                    <p className="text-xs md:text-sm text-indigo-700/80 dark:text-indigo-300/70 mt-1 leading-relaxed">Papan pemuka ini menapis data khusus bagi unjuran <b>Sekolah {appMode === 'SR' ? 'Rendah' : 'Menengah'}</b>.</p>
+                    <p className="text-sm text-indigo-700/80 dark:text-indigo-300/70 mt-1 leading-relaxed">Papan pemuka ini menapis data khusus bagi unjuran <b>Sekolah {appMode === 'SR' ? 'Rendah' : 'Menengah'}</b>.</p>
                   </div>
                 </div>
-                <div className={`rounded-2xl p-4 md:p-5 flex items-center gap-4 md:gap-5 border transition-colors duration-500 shadow-sm ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-700/50' : 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-900/20 border-amber-200 dark:border-amber-500/30'}`}>
+                <div className={`rounded-2xl p-5 flex items-center gap-5 border transition-colors duration-500 shadow-sm ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-700/50' : 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-900/20 border-amber-200 dark:border-amber-500/30'}`}>
                   <div className={`p-3 rounded-xl shadow-md shrink-0 ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'bg-slate-50 dark:bg-slate-800 shadow-slate-200 dark:shadow-none' : 'bg-white dark:bg-amber-900/50 shadow-amber-200 dark:shadow-none'}`}>
-                    <CustomIcon name="Filter" className="w-6 h-6 md:w-8 md:h-8 text-slate-400 dark:text-slate-500" />
+                    <CustomIcon name="Filter" className={`w-8 h-8 ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-400 dark:text-slate-500' : 'text-amber-600 dark:text-amber-400'}`} />
                   </div>
                   <div>
                     <h3 className={`font-bold text-sm tracking-tight ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-700 dark:text-slate-300' : 'text-amber-900 dark:text-amber-100'}`}>Konteks Data Semasa</h3>
-                    <p className={`text-xs md:text-sm mt-1 leading-relaxed ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-500 dark:text-slate-400' : 'text-amber-700/80 dark:text-amber-300/80'}`}>
+                    <p className={`text-sm mt-1 leading-relaxed ${selectedZone === 'ALL' && selectedSchool === 'ALL' ? 'text-slate-500 dark:text-slate-400' : 'text-amber-700/80 dark:text-amber-300/80'}`}>
                       {selectedZone === 'ALL' && selectedSchool === 'ALL' ? (<span>Memaparkan <b>keseluruhan data</b> zon & sekolah.</span>) : (<span>Mod tapisan aktif: {selectedZone !== 'ALL' && <span className="font-bold text-amber-600 dark:text-amber-400">Zon {selectedZone}</span>}{selectedZone !== 'ALL' && selectedSchool !== 'ALL' && <span>, </span>}{selectedSchool !== 'ALL' && <span className="font-bold text-amber-600 dark:text-amber-400">{selectedSchool}</span>}</span>)}
                     </p>
                   </div>
@@ -689,19 +698,19 @@
                 <KPICard title="Purata Waktu" value={analyticsData.avgWaktu} icon={BarChart2} colorClass="from-violet-400 to-indigo-600" />
               </div>
 
-              <Card className="p-4 md:p-6">
-                <div className="mb-4 md:mb-6">
-                  <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white tracking-tight">Status Penempatan & Ketidakpadanan Subjek</h3>
-                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mt-1">Analitik ketidakpadanan jadual (Guru mengajar luar opsyen sedangkan sekolah mempunyai kepakaran).</p>
+              <Card className="p-6">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Status Penempatan & Ketidakpadanan Subjek</h3>
+                  <p className="text-sm text-slate-500 dark:text-indigo-200/60 mt-1">Analitik ketidakpadanan jadual (Guru mengajar luar opsyen sedangkan sekolah mempunyai kepakaran).</p>
                 </div>
-                <div className="h-[300px] md:h-[400px]">
+                <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analyticsData.statusPenempatanData} margin={{ top: 20, right: 10, left: -20, bottom: 50 }}>
+                    <BarChart data={analyticsData.statusPenempatanData} margin={{ top: 20, right: 30, left: 0, bottom: 50 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#1e293b' : '#e2e8f0'} vertical={false} />
-                      <XAxis dataKey="name" stroke={isDarkMode ? '#64748b' : '#94a3b8'} angle={-45} textAnchor="end" height={80} tick={{fontSize: 10}} axisLine={false} tickLine={false} />
-                      <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 10}} />
-                      <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} />
-                      <Legend verticalAlign="top" height={40} iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: '500' }}/>
+                      <XAxis dataKey="name" stroke={isDarkMode ? '#64748b' : '#94a3b8'} angle={-45} textAnchor="end" height={80} tick={{fontSize: 11}} axisLine={false} tickLine={false} />
+                      <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false} />
+                      <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px' }} />
+                      <Legend verticalAlign="top" height={40} iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: '500' }}/>
                       <Bar dataKey="Ajar Opsyen" stackId="a" fill="#10b981" name="Padan (Opsyen)" />
                       <Bar dataKey="Luar Opsyen" stackId="a" fill="#f59e0b" name="Kekurangan Opsyen" />
                       <Bar dataKey="Ketidakpadanan" stackId="a" fill="#f43f5e" name="Ketidakpadanan (Ada Kepakaran)" radius={[4, 4, 0, 0]} />
@@ -710,36 +719,36 @@
                 </div>
               </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <Card className="p-4 md:p-6">
-                  <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Opsyen Dominan {selectedZone !== 'ALL' ? `(Zon ${selectedZone})` : ''}</h3>
-                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Top 5 Opsyen Tertinggi & Lain-lain</p>
-                  <div className="h-60 md:h-72 relative">
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-500/10 rounded-full blur-xl"></div></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Opsyen Dominan {selectedZone !== 'ALL' ? `(Zon ${selectedZone})` : ''}</h3>
+                  <p className="text-sm text-slate-500 dark:text-indigo-200/60 mb-6">Top 5 Opsyen Tertinggi & Lain-lain</p>
+                  <div className="h-72 relative">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><div className="w-24 h-24 bg-indigo-500/10 rounded-full blur-xl"></div></div>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={analyticsData.pieData} cx="50%" cy="50%" innerRadius="55%" outerRadius="80%" paddingAngle={4} dataKey="value" labelLine={false} label={renderCustomizedLabel} stroke="none">
+                        <Pie data={analyticsData.pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={4} dataKey="value" labelLine={false} label={renderCustomizedLabel} stroke="none">
                           {analyticsData.pieData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
                         </Pie>
-                        <RechartsTooltip contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} itemStyle={{ fontWeight: '600' }} />
-                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px' }} />
+                        <RechartsTooltip contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px' }} itemStyle={{ fontWeight: '600' }} />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                 </Card>
-                <Card className="p-4 md:p-6">
-                  <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Statistik Luar Opsyen (Zon)</h3>
-                  <p className="text-xs md:text-sm text-slate-500 dark:text-indigo-200/60 mb-4 md:mb-6">Perbandingan mengikut kawasan.</p>
-                  <div className="h-60 md:h-72">
+                <Card className="p-6">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-1">Statistik Luar Opsyen (Zon)</h3>
+                  <p className="text-sm text-slate-500 dark:text-indigo-200/60 mb-6">Perbandingan mengikut kawasan.</p>
+                  <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={analyticsData.barDataLuar} margin={{ left: -20 }}>
+                      <BarChart data={analyticsData.barDataLuar}>
                         <defs>
                           <linearGradient id="colorBarLuar" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f43f5e"/><stop offset="100%" stopColor="#be123c"/></linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#1e293b' : '#e2e8f0'} vertical={false} />
-                        <XAxis dataKey="zon" stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 10}}/>
-                        <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} allowDecimals={false} axisLine={false} tickLine={false} tick={{fontSize: 10}}/>
-                        <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px', fontSize: '12px' }} />
+                        <XAxis dataKey="zon" stroke={isDarkMode ? '#64748b' : '#94a3b8'} axisLine={false} tickLine={false}/>
+                        <YAxis stroke={isDarkMode ? '#64748b' : '#94a3b8'} allowDecimals={false} axisLine={false} tickLine={false}/>
+                        <RechartsTooltip cursor={{fill: isDarkMode ? '#1e293b' : '#f1f5f9'}} contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderColor: isDarkMode ? '#1e293b' : '#e2e8f0', color: isDarkMode ? '#fff' : '#000', borderRadius: '12px' }} />
                         <Bar dataKey="count" fill="url(#colorBarLuar)" radius={[6, 6, 0, 0]} name="Bilangan Guru Luar Opsyen" />
                       </BarChart>
                     </ResponsiveContainer>
@@ -752,94 +761,94 @@
 
         if (activeTab === 'analisis_opsyen') {
           return (
-            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+            <Card className="flex flex-col h-[calc(100vh-115px)] border-0">
               <TableViewHeader title="Analitik Opsyen" subtitle="Taburan bilangan guru berdasarkan senarai Opsyen Dominan (Kepakaran)" searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
-              <DraggableTableContainer>
-                <table className="w-full text-left border-collapse min-w-[500px]">
+              <div className="flex-1 overflow-auto p-0 scrollbar-thin">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-16 md:w-20">Bil</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-right w-32 md:w-48">Bilangan Guru</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-20">Bil</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-right w-48">Bilangan Guru</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
                     {analyticsData.optionStats.map((row, idx) => (
                       <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-indigo-600 dark:text-cyan-400">{row.name}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-slate-900 dark:text-white text-right">{row.count}</td>
+                        <td className="px-5 py-3 text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-indigo-600 dark:text-cyan-400">{row.name}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-slate-900 dark:text-white text-right">{row.count}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </DraggableTableContainer>
+              </div>
             </Card>
           );
         }
 
         if (activeTab === 'subjek_ajar') {
           return (
-            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+            <Card className="flex flex-col h-[calc(100vh-115px)] border-0">
               <TableViewHeader title="Matriks Subjek" subtitle="Rumusan waktu pengajaran mengikut mata pelajaran yang diajar." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
-              <DraggableTableContainer>
-                <table className="w-full text-left border-collapse min-w-[700px]">
+              <div className="flex-1 overflow-auto p-0 scrollbar-thin">
+                <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-16">Bil</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Mata Pelajaran</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Bilangan Guru</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
-                      <th className="px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-20">Bil</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Mata Pelajaran</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Bilangan Guru</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu/Guru</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
                     {analyticsData.subjectStats.map((row, idx) => (
                       <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-indigo-600 dark:text-indigo-300">{row.name}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-semibold text-slate-800 dark:text-slate-200 text-center">{row.count}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.hours}</td>
-                        <td className="px-4 md:px-5 py-3 text-xs md:text-sm font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
+                        <td className="px-5 py-3 text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-300">{row.name}</td>
+                        <td className="px-5 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 text-center">{row.count}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.hours}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </DraggableTableContainer>
+              </div>
             </Card>
           );
         }
 
         if (activeTab === 'statistik') {
           return (
-            <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+            <Card className="flex flex-col h-[calc(100vh-115px)] border-0">
               <TableViewHeader title="Statistik Keseluruhan" subtitle="Kompilasi taburan sumber manusia dan tahap kritikal di setiap sekolah." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
-              <DraggableTableContainer>
-                <table className="w-full text-left border-collapse min-w-[900px]">
+              <div className="flex-1 overflow-auto p-0 scrollbar-thin">
+                <table className="w-full text-left border-collapse min-w-[1000px]">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-12">Bil</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Sekolah</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Guru</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Guru Luar Opsyen</th>
-                      <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status Kritikal</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-16">Bil</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Sekolah</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Guru</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Jumlah Waktu</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Purata Waktu</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Guru Luar Opsyen</th>
+                      <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status Kritikal</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
                     {analyticsData.schoolStats.map((row, idx) => (
                       <tr key={idx} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
-                        <td className="px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
-                        <td className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400">{row.zon}</td>
-                        <td className="px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white">{row.name}</td>
-                        <td className="px-4 py-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 text-center">{row.totalGuru}</td>
-                        <td className="px-4 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.totalHours}</td>
-                        <td className="px-4 py-2.5 text-xs font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
-                        <td className="px-4 py-2.5 text-xs font-bold text-rose-500 dark:text-rose-400 text-center">{row.luarOpsyen}</td>
-                        <td className="px-4 py-2.5 text-xs text-center">
-                          <span className={`px-2 py-1 rounded-md text-[10px] font-bold tracking-wide ${row.riskPct > 15 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20' : row.riskPct > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'}`}>
+                        <td className="px-5 py-3 text-sm font-medium text-slate-700 dark:text-slate-300">{idx + 1}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-slate-600 dark:text-slate-400">{row.zon}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-slate-900 dark:text-white">{row.name}</td>
+                        <td className="px-5 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 text-center">{row.totalGuru}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-center">{row.totalHours}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-cyan-600 dark:text-cyan-400 text-center">{row.avgHours}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-rose-500 dark:text-rose-400 text-center">{row.luarOpsyen}</td>
+                        <td className="px-5 py-3 text-sm text-center">
+                          <span className={`px-2.5 py-1 rounded-md text-xs font-bold tracking-wide ${row.riskPct > 15 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20' : row.riskPct > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'}`}>
                             {row.riskPct}%
                           </span>
                         </td>
@@ -847,120 +856,109 @@
                     ))}
                   </tbody>
                 </table>
-              </DraggableTableContainer>
+              </div>
             </Card>
           );
         }
 
         if (activeTab === 'luar_opsyen') {
           return (
-            <Card className="flex flex-col h-full border-0 border-l-4 border-l-rose-500 rounded-none md:rounded-2xl">
+            <Card className="flex flex-col h-[calc(100vh-115px)] border-0 border-l-4 border-l-rose-500">
               <TableViewHeader title="Pemantauan Berisiko & Opsyen" subtitle="Senarai khas guru yang tidak mengajar opsyen kepakaran atau mengajar < 50% dari waktu kepakaran mereka." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
-              <DraggableTableContainer>
-                <table className="w-full text-left border-collapse min-w-[1000px]">
+              <div className="flex-1 overflow-auto p-0 scrollbar-thin">
+                <table className="w-full text-left border-collapse min-w-[1100px]">
                   <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-10 text-center">Bil</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Subjek Luar Opsyen (Waktu)</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Opsyen</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Luar Opsyen</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">% Opsyen</th>
-                      <th className="px-3 md:px-4 py-2.5 text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider w-12 text-center">Bil</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Subjek Luar Opsyen (Waktu)</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Opsyen</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Waktu Luar Opsyen</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">% Opsyen</th>
+                      <th className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Tindakan / Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
                     {analyticsData.riskData.map((row, idx) => (
                       <tr key={row.id} className="hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-colors">
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-700 dark:text-slate-300 font-medium text-center">{idx + 1}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-slate-900 dark:text-white">{row.nama}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span></td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-rose-600 dark:text-rose-400">{row.subjekBukanOpsyen || '-'}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-slate-800 dark:text-slate-200 text-center">{row.waktuOpsyen}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] font-bold text-rose-500 dark:text-rose-400 text-center">{row.waktuLain}</td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-center">
-                          <span className={`px-2 py-0.5 rounded text-[10px] md:text-[11px] font-bold ${row.peratusOpsyen === 0 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>{row.peratusOpsyen}%</span>
+                        <td className="px-4 py-1.5 text-[13px] text-slate-700 dark:text-slate-300 font-medium text-center">{idx + 1}</td>
+                        <td className="px-4 py-1.5 text-[13px] text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah}</td>
+                        <td className="px-4 py-1.5 text-[13px] font-bold text-slate-900 dark:text-white">{row.nama}</td>
+                        <td className="px-4 py-1.5 text-[13px] text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span></td>
+                        <td className="px-4 py-1.5 text-[13px] font-bold text-rose-600 dark:text-rose-400">{row.subjekBukanOpsyen || '-'}</td>
+                        <td className="px-4 py-1.5 text-[13px] text-slate-800 dark:text-slate-200 text-center">{row.waktuOpsyen}</td>
+                        <td className="px-4 py-1.5 text-[13px] font-bold text-rose-500 dark:text-rose-400 text-center">{row.waktuLain}</td>
+                        <td className="px-4 py-1.5 text-[13px] text-center">
+                          <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${row.peratusOpsyen === 0 ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>{row.peratusOpsyen}%</span>
                         </td>
-                        <td className="px-3 md:px-4 py-2 text-[11px] md:text-[13px] text-center">
-                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] md:text-[10px] font-bold shadow-sm ${row.peratusOpsyen === 0 ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white'}`}>{row.peratusOpsyen === 0 ? 'Sifar Opsyen' : '< 50% Waktu'}</span>
+                        <td className="px-4 py-1.5 text-[13px] text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold shadow-sm ${row.peratusOpsyen === 0 ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white'}`}>{row.peratusOpsyen === 0 ? 'Sifar Opsyen' : '< 50% Waktu'}</span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </DraggableTableContainer>
+              </div>
             </Card>
           );
         }
 
         return (
-          <Card className="flex flex-col h-full border-0 rounded-none md:rounded-2xl">
+          <Card className="flex flex-col h-[calc(100vh-115px)] border-0">
             <TableViewHeader title={SIDEBAR_MENU.find(m => m.id === activeTab)?.label || 'Pangkalan Data'} subtitle="Jadual pangkalan data utama memaparkan senarai terperinci semua maklumat guru." searchQuery={searchQuery} setSearchQuery={setSearchQuery} onExport={exportToCSV}/>
-            <DraggableTableContainer>
-              <table className="w-full text-left border-collapse min-w-[1100px]">
+            <div className="flex-1 overflow-auto p-0 scrollbar-thin">
+              <table className="w-full text-left border-collapse min-w-[1200px]">
                 <thead className="bg-slate-50 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Bil</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Ikhtisas</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek 1</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek 2</th>
-                    <th className="px-4 py-3 text-[10px] md:text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Risiko</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Bil</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Zon</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Sekolah</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Nama Guru</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Ikhtisas</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Opsyen Dominan</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek Ajar 1 (Waktu)</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider">Subjek Ajar 2 (Waktu)</th>
+                    <th className="px-5 py-4 text-xs font-bold text-slate-500 dark:text-indigo-300 uppercase tracking-wider text-center">Status Risiko</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 bg-white/40 dark:bg-slate-900/20">
                   {analyticsData.filteredData.map((row, idx) => (
                     <tr key={row.id} className="hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300 font-medium">{row.bil}</td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm font-medium"><span className={`px-2 py-0.5 rounded text-[10px] md:text-xs font-bold tracking-wide ${row.zon === 'BANGSAR' ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-500/10 dark:text-cyan-400' : 'bg-violet-100 text-violet-800 dark:bg-violet-500/10 dark:text-violet-400'}`}>{row.zon}</span></td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah}</td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm font-bold text-slate-900 dark:text-white">{row.nama}</td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-600 dark:text-slate-400">{row.ikhtisas}</td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span></td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar1 || '-'} <span className="font-bold text-cyan-600 dark:text-cyan-400">{row.bil_waktu1 ? `(${row.bil_waktu1})` : ''}</span></td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar2 || '-'} <span className="font-bold text-violet-600 dark:text-violet-400">{row.bil_waktu2 ? `(${row.bil_waktu2})` : ''}</span></td>
-                      <td className="px-4 py-2.5 text-[11px] md:text-sm text-center">
-                        {row.statusLuarOpsyen ? (<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] md:text-[10px] uppercase font-bold bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-sm"><CustomIcon name="AlertTriangle" className="w-3 h-3" /> Luar Opsyen</span>) : (<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] md:text-[10px] uppercase font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-sm">Padan</span>)}
+                      <td className="px-5 py-3 text-sm text-slate-700 dark:text-slate-300 font-medium">{row.bil}</td>
+                      <td className="px-5 py-3 text-sm font-medium"><span className={`px-2.5 py-1 rounded-md text-xs font-bold tracking-wide ${row.zon === 'BANGSAR' ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-500/10 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20' : 'bg-violet-100 text-violet-800 dark:bg-violet-500/10 dark:text-violet-400 border border-violet-200 dark:border-violet-500/20'}`}>{row.zon}</span></td>
+                      <td className="px-5 py-3 text-sm text-slate-800 dark:text-slate-200 font-semibold">{row.nama_sekolah} <span className="text-xs text-slate-400 dark:text-slate-500 block font-normal mt-0.5">{row.kod_sekolah}</span></td>
+                      <td className="px-5 py-3 text-sm font-bold text-slate-900 dark:text-white">{row.nama}</td>
+                      <td className="px-5 py-3 text-sm text-slate-600 dark:text-slate-400">{row.ikhtisas}</td>
+                      <td className="px-5 py-3 text-sm text-slate-800 dark:text-slate-200"><span className="font-semibold text-indigo-600 dark:text-indigo-400">{row.displayOpsyen}</span><span className="text-xs text-slate-400 dark:text-slate-500 block mt-0.5">{row.opsyen_1} {row.opsyen_2 ? `/ ${row.opsyen_2}` : ''}</span></td>
+                      <td className="px-5 py-3 text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar1 || '-'} <span className="font-bold text-cyan-600 dark:text-cyan-400">{row.bil_waktu1 ? `(${row.bil_waktu1})` : ''}</span></td>
+                      <td className="px-5 py-3 text-sm text-slate-700 dark:text-slate-300">{row.subjek_ajar2 || '-'} <span className="font-bold text-violet-600 dark:text-violet-400">{row.bil_waktu2 ? `(${row.bil_waktu2})` : ''}</span></td>
+                      <td className="px-5 py-3 text-sm text-center">
+                        {row.statusLuarOpsyen ? (<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] uppercase font-bold bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm"><CustomIcon name="AlertTriangle" className="w-3.5 h-3.5" /> Luar Opsyen</span>) : (<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] uppercase font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm">Padan</span>)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </DraggableTableContainer>
+            </div>
           </Card>
         );
       };
 
-      // --- PAPARAN LOG MASUK (LOGIN) ---
       if (!isAuthenticated) {
         return (
           <div className={`min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
+            {isDarkMode && (<><div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div><div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div></>)}
             
-            {/* Glow Effects */}
-            {isDarkMode && (
-              <>
-                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div>
-                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div>
-              </>
-            )}
-
-            {/* Butang Tukar Tema */}
+            {/* Butang Tema Sahaja di Log In */}
             <div className="absolute top-6 right-6 z-50">
               <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 md:p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg pointer-events-auto">
                 {isDarkMode ? <CustomIcon name="Sun" className="w-5 h-5 md:w-6 md:h-6" /> : <CustomIcon name="Moon" className="w-5 h-5 md:w-6 md:h-6" />}
               </button>
             </div>
 
-            {/* Hero Section & Login Form */}
             <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-12 md:pt-16 flex-1 flex flex-col items-center justify-center">
-              
-              {/* Header Sama Macam Landing */}
               <div className="text-center mb-10 md:mb-12 space-y-4 w-full">
                 <div className="inline-flex items-center justify-center p-4 bg-white rounded-3xl mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10 overflow-hidden transform hover:rotate-3 transition-transform">
                   <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-20 md:h-28 w-auto object-contain" style={{ transform: 'scale(1.3)' }} />
@@ -968,209 +966,75 @@
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 uppercase leading-tight">
                   Sistem Analitik Opsyen
                 </h1>
-                <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">
-                  Log Masuk Pentadbir
-                </h2>
-                <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">
-                  Pejabat Pendidikan Daerah Bangsar/Pudu
-                </p>
+                <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">Log Masuk Pentadbir</h2>
+                <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">Pejabat Pendidikan Daerah Bangsar/Pudu</p>
               </div>
-
-              {/* Login Form Container - Gaya seperti butang pilihan SR/SM */}
               <div className="w-full max-w-md z-20">
                 <div className="p-8 md:p-10 rounded-[2.5rem] bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border-2 border-slate-200 dark:border-indigo-500/20 shadow-[0_20px_50px_rgba(8,112,184,0.15)] dark:shadow-[0_20px_50px_rgba(139,92,246,0.15)] relative overflow-hidden">
-                  
                   <form onSubmit={handleLogin} className="space-y-6 relative z-10">
-                    {loginError && (
-                      <div className="p-4 bg-rose-100/90 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 rounded-2xl text-sm font-bold text-center flex items-center justify-center gap-2 shadow-sm animate-pulse">
-                        <CustomIcon name="AlertTriangle" className="w-5 h-5 shrink-0" /> 
-                        <span>{loginError}</span>
-                      </div>
-                    )}
-                    
+                    {loginError && (<div className="p-4 bg-rose-100/90 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 rounded-2xl text-sm font-bold text-center flex items-center justify-center gap-2 shadow-sm animate-pulse"><CustomIcon name="AlertTriangle" className="w-5 h-5 shrink-0" /> <span>{loginError}</span></div>)}
                     <div className="space-y-2">
                       <label className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest ml-1">ID Pengguna</label>
                       <div className="relative group">
                         <CustomIcon name="User" className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
-                        <input 
-                          type="text" 
-                          value={loginId}
-                          onChange={(e) => setLoginId(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400 shadow-inner"
-                          placeholder="Masukkan ID"
-                          autoComplete="off"
-                        />
+                        <input type="text" value={loginId} onChange={(e) => setLoginId(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400 shadow-inner" placeholder="Masukkan ID" autoComplete="off" />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <label className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest ml-1">Kata Laluan</label>
                       <div className="relative group">
                         <CustomIcon name="Lock" className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
-                        <input 
-                          type="password" 
-                          value={loginPassword}
-                          onChange={(e) => setLoginPassword(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400 shadow-inner"
-                          placeholder="••••••••"
-                        />
+                        <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all text-sm font-bold text-slate-800 dark:text-white placeholder-slate-400 shadow-inner" placeholder="••••••••" />
                       </div>
                     </div>
-
-                    <button 
-                      type="submit" 
-                      className="w-full py-4 mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-2xl font-black tracking-widest shadow-xl shadow-cyan-500/30 transform transition-all hover:-translate-y-1 active:scale-95 uppercase text-sm"
-                    >
-                      Akses Sistem
-                    </button>
+                    <button type="submit" className="w-full py-4 mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-2xl font-black tracking-widest shadow-xl shadow-cyan-500/30 transform transition-all hover:-translate-y-1 active:scale-95 uppercase text-sm">Akses Sistem</button>
                   </form>
                 </div>
               </div>
             </div>
-
-            {/* Footer Animasi Aerodinamik */}
-            <div className="relative w-full min-h-[180px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
-              <style>{`
-                @keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-150%); } }
-                @keyframes shine { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
-                @keyframes popInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-                
-                .aero-frame {
-                  position: relative;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  padding: 8px 35px;
-                  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.3) 100%);
-                  border-top: 1.5px solid rgba(255,255,255,0.9);
-                  border-left: 1.5px solid rgba(255,255,255,0.9);
-                  border-bottom: 1.5px solid rgba(203, 213, 225, 0.5);
-                  border-right: 1.5px solid rgba(203, 213, 225, 0.5);
-                  border-radius: 80px 12px 80px 12px; 
-                  backdrop-filter: blur(12px);
-                  transform: skewX(-15deg); 
-                  box-shadow: 15px 15px 30px rgba(0,0,0,0.06), inset 2px 2px 10px rgba(255,255,255,0.8);
-                }
-                .dark .aero-frame {
-                  background: linear-gradient(135deg, rgba(30, 58, 138, 0.5) 0%, rgba(15, 23, 42, 0.3) 100%);
-                  border-top: 1.5px solid rgba(99, 102, 241, 0.4);
-                  border-left: 1.5px solid rgba(99, 102, 241, 0.4);
-                  border-bottom: 1.5px solid rgba(15, 23, 42, 0.6);
-                  border-right: 1.5px solid rgba(15, 23, 42, 0.6);
-                  box-shadow: 15px 15px 30px rgba(0,0,0,0.4), inset 2px 2px 15px rgba(99, 102, 241, 0.2);
-                }
-                .aero-img {
-                  transform: skewX(15deg); 
-                  height: 100%;
-                  max-height: 100px;
-                  width: auto;
-                  object-fit: contain;
-                  opacity: 0.95;
-                  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
-                }
-                .dark .aero-img {
-                  opacity: 0.85;
-                  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
-                }
-
-                .anim-wrapper { 
-                  position: absolute; 
-                  top: 10px; 
-                  height: 120px; 
-                  display: flex; 
-                  align-items: center; 
-                  gap: 2.5rem; 
-                  animation: slideAcross 35s linear infinite; 
-                  white-space: nowrap; 
-                  padding-right: 20vw; 
-                }
-                
-                .text-container {
-                  display: flex;
-                  flex-direction: column;
-                  align-items: flex-end;
-                  justify-content: center;
-                  gap: 0.25rem;
-                  animation: popInOut 2s ease-in-out infinite;
-                }
-                .text-animated {
-                  background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4);
-                  background-size: 200% auto;
-                  color: transparent;
-                  -webkit-background-clip: text;
-                  background-clip: text;
-                  animation: shine 4s linear infinite;
-                  text-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                }
-              `}</style>
-              
+            <div className="relative w-full min-h-[300px] md:min-h-[350px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-auto border-t border-slate-200/50 dark:border-slate-800/50">
+              <style>{`@keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-150%); } } @keyframes shine { 0% { background-position: 200% center; } 100% { background-position: -200% center; } } @keyframes popInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } } .img-pan-base { height: 100%; max-height: 220px; width: auto; object-fit: contain; opacity: 1; filter: drop-shadow(4px 15px 25px rgba(0,0,0,0.25)); } .dark .img-pan-base { opacity: 0.95; filter: drop-shadow(4px 15px 25px rgba(0,0,0,0.6)); } .anim-wrapper { position: absolute; bottom: 70px; height: 240px; display: flex; align-items: center; gap: 3.5rem; animation: slideAcross 35s linear infinite; white-space: nowrap; padding-right: 20vw; } .text-container { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0.5rem; animation: popInOut 2s ease-in-out infinite; } .text-animated { background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; text-shadow: 0 6px 20px rgba(0,0,0,0.1); }`}</style>
               <div className="anim-wrapper">
-                <div className="text-container">
-                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase text-animated">
-                    SEKTOR PEMBELAJARAN
-                  </h2>
-                  <h3 className="text-lg md:text-2xl lg:text-3xl font-extrabold tracking-wide uppercase text-animated">
-                    PEJABAT PENDIDIKAN DAERAH BANGSAR/PUDU
-                  </h3>
-                </div>
-                <div className="aero-frame">
-                  <img src="https://i.postimg.cc/j2j2Y7jP/Untitled-design-(4).png" alt="Hiasan Latar" className="aero-img" />
-                </div>
+                <div className="text-container"><h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-widest uppercase text-animated">SEKTOR PEMBELAJARAN</h2><h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-wide uppercase text-animated">PEJABAT PENDIDIKAN DAERAH BANGSAR/PUDU</h3></div>
+                <img src="https://i.postimg.cc/j2j2Y7jP/Untitled-design-(4).png" alt="Hiasan Latar" className="img-pan-base" />
               </div>
-
-              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase py-6 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent">
-                Sistem Analitik Opsyen & Kepakaran Guru
+              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[8.5px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.15em] uppercase py-6 px-4 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent mt-auto">
+                DIBANGUNKAN OLEH UNIT SUMBER DAN TEKNOLOGI PENDIDIKAN, SEKTOR PEMBELAJARAN, PPD BANGSAR/PUDU
               </div>
             </div>
           </div>
         );
       }
 
-      // --- PAPARAN UTAMA (LANDING PAGE) ---
       if (appMode === 'landing') {
         return (
           <div className={`min-h-screen flex flex-col bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 transition-colors duration-300 relative overflow-hidden font-sans ${isDarkMode ? 'dark' : ''}`}>
+            {isDarkMode && (<><div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div><div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div></>)}
             
-            {/* Glow Effects */}
-            {isDarkMode && (
-              <>
-                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[150px] pointer-events-none z-0"></div>
-                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none z-0"></div>
-              </>
-            )}
-
-            {/* Dark mode button */}
-            <div className="absolute top-6 right-6 z-50">
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 md:p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg">
+            {/* Butang Tema & Log Keluar di Paparan Pemilihan (Landing Page) */}
+            <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 md:p-4 rounded-full bg-white/10 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform shadow-lg pointer-events-auto">
                 {isDarkMode ? <CustomIcon name="Sun" className="w-5 h-5 md:w-6 md:h-6" /> : <CustomIcon name="Moon" className="w-5 h-5 md:w-6 md:h-6" />}
+              </button>
+              <button onClick={handleLogout} className="p-3 md:p-4 rounded-full bg-rose-500/10 backdrop-blur-md border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all shadow-lg pointer-events-auto group" title="Log Keluar">
+                <CustomIcon name="LogOut" className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
 
-            {/* Hero Section */}
             <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-12 md:pt-16 flex-1 flex flex-col items-center justify-center">
               <div className="text-center mb-12 space-y-4">
                 <div className="inline-flex items-center justify-center p-4 bg-white rounded-3xl mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10 overflow-hidden transform hover:rotate-3 transition-transform">
                   <img src="https://i.postimg.cc/Y9ynZMmw/LOGO-PPDBP-FONT-HITAM.png" alt="Logo PPDBP" className="h-20 md:h-28 w-auto object-contain" style={{ transform: 'scale(1.3)' }} />
                 </div>
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 uppercase leading-tight">
-                  Sistem Analitik Opsyen
-                </h1>
-                <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">
-                  Dashboard Kepakaran Guru PPDBP
-                </h2>
-                <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">
-                  Pejabat Pendidikan Daerah Bangsar/Pudu
-                </p>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 uppercase leading-tight">Sistem Analitik Opsyen</h1>
+                <h2 className="text-2xl md:text-4xl font-extrabold text-slate-700 dark:text-slate-200 tracking-tight">Dashboard Kepakaran Guru PPDBP</h2>
+                <p className="text-lg md:text-2xl text-slate-500 dark:text-indigo-200/60 max-w-3xl mx-auto font-medium">Pejabat Pendidikan Daerah Bangsar/Pudu</p>
               </div>
-
-              {/* Buttons */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
                 <button onClick={() => { setAppMode('SR'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-8 md:p-12 rounded-[2.5rem] bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-cyan-400 dark:hover:border-cyan-400/50 hover:shadow-[0_20px_50px_rgba(8,112,184,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-cyan-500/30 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
-                      <CustomIcon name="BookOpen" className="w-8 h-8 md:w-10 md:h-10" />
-                    </div>
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-cyan-500/30 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500"><CustomIcon name="BookOpen" className="w-8 h-8 md:w-10 md:h-10" /></div>
                     <h3 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">Sekolah Rendah</h3>
                     <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SR).</p>
                   </div>
@@ -1178,60 +1042,23 @@
                 <button onClick={() => { setAppMode('SM'); setActiveTab('dashboard'); setSelectedZone('ALL'); setSelectedSchool('ALL'); setSearchQuery(''); }} className="group text-left p-8 md:p-12 rounded-[2.5rem] bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-2 border-slate-200 dark:border-indigo-500/20 hover:border-violet-400 dark:hover:border-violet-400/50 hover:shadow-[0_20px_50px_rgba(139,92,246,0.2)] transition-all duration-500 relative overflow-hidden pointer-events-auto">
                   <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                      <CustomIcon name="GraduationCap" className="w-8 h-8 md:w-10 md:h-10" />
-                    </div>
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white mb-6 md:mb-8 shadow-lg shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"><CustomIcon name="GraduationCap" className="w-8 h-8 md:w-10 md:h-10" /></div>
                     <h3 className="text-2xl md:text-4xl font-bold text-slate-800 dark:text-white mb-2 md:mb-4">Sekolah Menengah</h3>
                     <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">Pemetaan analitik kepakaran guru bagi menyokong intervensi pedagogi (SM).</p>
                   </div>
                 </button>
               </div>
             </div>
-
-            {/* Footer Animation (Gambar dan Animasi Bucu Melengkung) */}
-            <div className="relative w-full h-[180px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-8 border-t border-slate-200/50 dark:border-slate-800/50">
-              <style>
-                {`
-                  @keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-150%); } }
-                  @keyframes shine { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
-                  @keyframes popInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-                  
-                  .anim-wrapper { position: absolute; top: 10px; height: 120px; display: flex; align-items: center; gap: 2rem; animation: slideAcross 35s linear infinite; white-space: nowrap; padding-right: 20vw; }
-                  
-                  .text-container { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0.25rem; animation: popInOut 2s ease-in-out infinite; }
-                  .text-animated { background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; text-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-                  
-                  .img-pan-base {
-                    height: 100%;
-                    max-height: 110px;
-                    width: auto;
-                    object-fit: cover;
-                    border-radius: 32px;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-                    border: 4px solid rgba(255,255,255,0.7);
-                    opacity: 0.95;
-                  }
-                  .dark .img-pan-base {
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-                    border-color: rgba(255,255,255,0.1);
-                    opacity: 0.85;
-                  }
-                `}
-              </style>
-              
+            <div className="relative w-full h-[300px] md:h-[350px] flex flex-col justify-end items-center overflow-hidden z-0 pointer-events-none mt-8 border-t border-slate-200/50 dark:border-slate-800/50">
+              <style>{`@keyframes slideAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-150%); } } @keyframes shine { 0% { background-position: 200% center; } 100% { background-position: -200% center; } } @keyframes popInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } } .img-pan-base { height: 100%; max-height: 220px; width: auto; object-fit: contain; opacity: 1; filter: drop-shadow(4px 15px 25px rgba(0,0,0,0.25)); } .dark .img-pan-base { opacity: 0.95; filter: drop-shadow(4px 15px 25px rgba(0,0,0,0.6)); } .anim-wrapper { position: absolute; bottom: 70px; height: 240px; display: flex; align-items: center; gap: 3.5rem; animation: slideAcross 35s linear infinite; white-space: nowrap; padding-right: 20vw; } .text-container { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0.5rem; animation: popInOut 2s ease-in-out infinite; } .text-animated { background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; text-shadow: 0 6px 20px rgba(0,0,0,0.1); }`}</style>
               <div className="anim-wrapper">
-                <div className="text-container">
-                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase text-animated">SEKTOR PEMBELAJARAN</h2>
-                  <h3 className="text-lg md:text-2xl lg:text-3xl font-extrabold tracking-wide uppercase text-animated">PEJABAT PENDIDIKAN DAERAH BANGSAR/PUDU</h3>
-                </div>
+                <div className="text-container"><h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-widest uppercase text-animated">SEKTOR PEMBELAJARAN</h2><h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-wide uppercase text-animated">PEJABAT PENDIDIKAN DAERAH BANGSAR/PUDU</h3></div>
                 <img src="https://i.postimg.cc/j2j2Y7jP/Untitled-design-(4).png" alt="Hiasan Latar" className="img-pan-base" />
               </div>
-              
-              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase py-6 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent mt-auto">
-                Sistem Analitik Opsyen & Kepakaran Guru
+              <div className="relative z-10 w-full text-center text-slate-700 dark:text-slate-300 text-[8.5px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.15em] uppercase py-6 px-4 bg-gradient-to-t from-slate-50 dark:from-[#0B0F19] to-transparent mt-auto">
+                DIBANGUNKAN OLEH UNIT SUMBER DAN TEKNOLOGI PENDIDIKAN, SEKTOR PEMBELAJARAN, PPD BANGSAR/PUDU
               </div>
             </div>
-
           </div>
         );
       }
@@ -1253,11 +1080,14 @@
                 <CustomIcon name="X" className="w-5 h-5" />
               </button>
             </div>
+            
             <div className="flex-1 overflow-y-auto py-4 md:py-6 px-3 md:px-4 space-y-1.5 scrollbar-thin">
-              <button onClick={() => { setAppMode('landing'); setActiveTab('dashboard'); setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-xl transition-all duration-300 text-xs md:text-sm font-semibold text-rose-500 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 mb-4 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30">
+              <button onClick={() => { setAppMode('landing'); setActiveTab('dashboard'); setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-xl transition-all duration-300 text-xs md:text-sm font-semibold text-indigo-500 hover:bg-indigo-50 dark:text-cyan-400 dark:hover:bg-indigo-500/10 mb-4 border border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/30">
                 <CustomIcon name="Home" className="w-4 h-4 md:w-5 md:h-5" /> Kembali ke Utama
               </button>
+              
               <p className="px-3 text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 md:mb-3">Papan Kawalan</p>
+              
               {SIDEBAR_MENU.map((item) => {
                 const isActive = activeTab === item.id;
                 return (
@@ -1268,6 +1098,23 @@
                   </button>
                 )
               })}
+            </div>
+            
+            {/* Butang Log Keluar di Menu Sisi (Sidebar) */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-transparent">
+              <div className="flex items-center gap-3 bg-white dark:bg-[#1e293b]/50 border border-slate-200 dark:border-slate-700/50 p-2.5 rounded-xl shadow-sm mb-3">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                  <CustomIcon name="Briefcase" className="w-4 h-4" />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">Pentadbir PPD</p>
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate tracking-wide">Sektor Pembelajaran</p>
+                </div>
+              </div>
+              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 bg-rose-100 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl transition-all shadow-sm font-bold text-xs md:text-sm">
+                <CustomIcon name="LogOut" className="w-4 h-4 md:w-5 md:h-5" />
+                Log Keluar
+              </button>
             </div>
           </aside>
           
@@ -1284,7 +1131,7 @@
                   <span className="text-slate-800 dark:text-slate-200">{SIDEBAR_MENU.find(m => m.id === activeTab)?.label}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center gap-2 md:gap-3 lg:gap-4">
                 <div className="relative flex items-center gap-1 md:gap-2">
                   <CustomIcon name="Filter" className="w-3 h-3 md:w-4 md:h-4 text-slate-400 hidden sm:block" />
                   <select className="bg-slate-100 dark:bg-slate-800 border-none text-slate-700 dark:text-slate-200 text-xs md:text-sm font-semibold rounded-md md:rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none w-[90px] sm:w-[110px] md:w-[140px] p-1.5 md:p-2.5 cursor-pointer shadow-sm" value={selectedZone} onChange={(e) => { setSelectedZone(e.target.value); setSelectedSchool('ALL'); }}>
@@ -1298,10 +1145,18 @@
                     {availableSchools.map(school => (<option key={school} value={school}>{school}</option>))}
                   </select>
                 </div>
-                <div className="w-px h-6 md:h-8 bg-slate-200 dark:bg-slate-800 mx-1"></div>
-                <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 md:p-2.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg md:rounded-xl transition-all shadow-sm shrink-0">
-                  {isDarkMode ? <CustomIcon name="Sun" className="w-4 h-4 md:w-5 md:h-5" /> : <CustomIcon name="Moon" className="w-4 h-4 md:w-5 md:h-5" />}
-                </button>
+                
+                <div className="w-px h-6 md:h-8 bg-slate-200 dark:bg-slate-800 mx-1 md:mx-2"></div>
+                
+                {/* Butang Tema & Log Keluar di Paparan Dalaman Dashboard */}
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 md:p-2.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg md:rounded-xl transition-all shadow-sm shrink-0">
+                    {isDarkMode ? <CustomIcon name="Sun" className="w-4 h-4 md:w-5 md:h-5" /> : <CustomIcon name="Moon" className="w-4 h-4 md:w-5 md:h-5" />}
+                  </button>
+                  <button onClick={handleLogout} className="p-2 md:p-2.5 text-rose-500 dark:text-rose-400 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 bg-rose-50 dark:bg-rose-500/10 rounded-lg md:rounded-xl transition-all shadow-sm shrink-0 hidden sm:block" title="Log Keluar">
+                    <CustomIcon name="LogOut" className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                </div>
               </div>
             </header>
             
